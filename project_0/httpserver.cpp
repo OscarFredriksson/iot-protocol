@@ -6,7 +6,7 @@ HttpServer::HttpServer(const int port):
 
 }
 
-void HttpServer::addGetHandler(const std::string& url, std::function<HttpConnection::Response(void)> handler)
+void HttpServer::addGetHandler(const std::string& url, std::function<HttpResponse(HttpParamMap)> handler)
 {
     getHandlers.insert({url, handler});
 }
@@ -19,15 +19,13 @@ void HttpServer::start()
             return;
         }
 
-        HttpConnection::Request msg = httpConnection.receive();
+        HttpRequest msg = httpConnection.receive();
 
         std::cout << msg.url << "\n";
 
         auto handler = getHandlers[msg.url];
 
-        HttpConnection::Response response = handler();
-
-        // const std::string html = "<body><h1>Hello World!</h1></body>";
+        HttpResponse response = handler(msg.params);
 
         httpConnection.respond(response);
         httpConnection.close();

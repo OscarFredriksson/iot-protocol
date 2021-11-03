@@ -8,16 +8,14 @@ int main()
 
     HttpServer server(port);
 
-    server.addGetHandler("/", [](){
-        std::cout << "handler works \n";
-
-        return HttpConnection::Response(HttpConnection::OK, "hello world");
+    server.addGetHandler("/", [](HttpParamMap params){
+        return HttpResponse(HttpStatusCode::OK, "hello world");
     });
 
-    server.addGetHandler("/hello", [](){
-        std::cout << "handler for different url!\n";
+    server.addGetHandler("/test", [](HttpParamMap params){
+        std::cout << "id: " << params["id"] << '\n';
 
-        return HttpConnection::Response(HttpConnection::OK, "hello");
+        return HttpResponse(HttpStatusCode::OK, "hello");
     });
 
     server.start();
