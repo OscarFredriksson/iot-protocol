@@ -17,7 +17,11 @@ HttpConnection::Request HttpConnection::receive() {
 }
 
 void HttpConnection::respond(HttpConnection::StatusCode statusCode, const std::string& body){
-    Socket::respond("HTTP/1.1 " + getStatusCodeString(statusCode) + " \r\n\r\n"+ body + "\r\n");
+    respond(HttpConnection::Response(statusCode, body));
+}
+
+void HttpConnection::respond(HttpConnection::Response response) {
+    Socket::respond("HTTP/1.1 " + getStatusCodeString(response.statusCode) + " \r\n\r\n"+ response.body + "\r\n");
 }
 
 std::string HttpConnection::getStatusCodeString(HttpConnection::StatusCode statusCode) {

@@ -16,9 +16,19 @@ public:
         std::string url;
     };
 
+    struct Response {
+        Response(StatusCode statusCode, const std::string& body):
+            statusCode(statusCode), body(body) {}
+
+        StatusCode statusCode;
+        std::string body;
+    };
+
     HttpConnection(const int port);
 
     Request receive();
+
+    void respond(HttpConnection::Response response);
 
     void respond(StatusCode statusCode, const std::string& body = "");
 
