@@ -6,9 +6,14 @@ HttpServer::HttpServer(const int port):
 
 }
 
-void HttpServer::addGetHandler(const std::string& url, std::function<HttpResponse(HttpParamMap)> handler)
+void HttpServer::addGetHandler(const std::string& url, std::function<HttpResponse(ParamMap)> handler)
 {
     getHandlers.insert({url, handler});
+}
+
+void HttpServer::addPostHandler(const std::string& url, std::function<HttpResponse(ParamMap, ParamMap)> handler)
+{
+    postHandlers.insert({url, handler});
 }
 
 void HttpServer::start() 
@@ -19,13 +24,33 @@ void HttpServer::start()
             return;
         }
 
-        HttpRequest msg = httpConnection.receive();
+        HttpRequest request = httpConnection.receive();
 
-        std::cout << msg.url << "\n";
+        HttpResponse response;
 
-        auto handler = getHandlers[msg.url];
-
-        HttpResponse response = handler(msg.params);
+        switch(request.type) {
+            case GET: {
+                if(getHandlers.find(request.url) != getHandlers.end()){ 
+                    auto handler = getHandlers[request.url];
+                    response = handler(request.urlParams);
+                }
+                else response = HttpResponse(NOT_FOUND);
+                break;
+            }
+            case POST: {
+                if(postHandlers.find(request.url) != postHandlers.end()){
+                    auto handler = postHandlers[request.url];
+                    response = handler(request.urlParams, request.bodyParams);
+                }
+                else response = HttpResponse(NOT_FOUND);
+                break;
+            }
+            case UNKOWN:
+            default: {
+                response = HttpResponse(METHOD_NOT_ALLOWED);
+                break;
+            }
+        }       
 
         httpConnection.respond(response);
         httpConnection.close();

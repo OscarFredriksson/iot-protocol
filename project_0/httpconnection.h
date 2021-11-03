@@ -1,23 +1,31 @@
 #include "socket.h"
-#include <map>
+#include <unordered_map>
 
-typedef std::map<std::string, std::string> HttpParamMap;
+typedef std::unordered_map<std::string, std::string> ParamMap;
 
 enum HttpStatusCode{
-    OK,
-    NOT_FOUND 
+    OK, //200
+    NOT_FOUND, //404
+    METHOD_NOT_ALLOWED //405 
+};
+
+enum HttpRequestType{
+    GET,
+    POST,
+    UNKOWN
 };
 struct HttpRequest {
-    HttpRequest(const std::string& type, const std::string& url, const HttpParamMap& params):
-            type(type), url(url), params(params){}
-
-    std::string type;
+    HttpRequestType type;
     std::string url;
-    HttpParamMap params;
+    ParamMap urlParams;
+    ParamMap headers;
+    ParamMap bodyParams;
 };
 
 struct HttpResponse {
-    HttpResponse(HttpStatusCode statusCode, const std::string& body):
+    HttpResponse(){}
+
+    HttpResponse(HttpStatusCode statusCode, const std::string& body = ""):
         statusCode(statusCode), body(body) {}
 
     HttpStatusCode statusCode;
@@ -38,5 +46,13 @@ public:
 private:
     std::string getStatusCodeString(HttpStatusCode statusCode);
 
-    std::vector<std::string> splitStr(const std::string& str, char delimiter);
+    HttpRequestType parseRequestType(const std::string& typeStr);
+
+    ParamMap parseHeaders(const std::string& msg);
+
+    ParamMap parseURLEncodedBody(const std::string& msg);
+
+    ParamMap parseParamStr(const std::string& paramStr);
+
+    std::vector<std::string> splitStr(const std::string& str, const std::string& delimiter);
 };

@@ -8,12 +8,19 @@ int main()
 
     HttpServer server(port);
 
-    server.addGetHandler("/", [](HttpParamMap params){
+    server.addGetHandler("/", [](ParamMap urlParams){
         return HttpResponse(HttpStatusCode::OK, "hello world");
     });
 
-    server.addGetHandler("/test", [](HttpParamMap params){
-        std::cout << "id: " << params["id"] << '\n';
+    server.addGetHandler("/test", [](ParamMap urlParams){
+        std::cout << "id: " << urlParams["id"] << '\n';
+
+        return HttpResponse(HttpStatusCode::OK, "hello");
+    });
+
+    server.addPostHandler("/test", [](ParamMap urlParams, ParamMap bodyParams){
+        
+        std::cout << "id: " << bodyParams["id"] << "\n";
 
         return HttpResponse(HttpStatusCode::OK, "hello");
     });
