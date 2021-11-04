@@ -12,6 +12,8 @@ enum HttpStatusCode{
 enum HttpRequestType{
     GET,
     POST,
+    PUT,
+    DELETE,
     UNKOWN
 };
 struct HttpRequest {

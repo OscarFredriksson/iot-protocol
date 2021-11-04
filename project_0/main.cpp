@@ -13,16 +13,13 @@ int main()
     });
 
     server.addGetHandler("/test", [](ParamMap urlParams){
-        std::cout << "id: " << urlParams["id"] << '\n';
-
-        return HttpResponse(HttpStatusCode::OK, "hello");
+        
+        return HttpResponse(HttpStatusCode::OK, "hello, id: " + urlParams["id"]);
     });
 
     server.addPostHandler("/test", [](ParamMap urlParams, ParamMap bodyParams){
         
-        std::cout << "id: " << bodyParams["id"] << "\n";
-
-        return HttpResponse(HttpStatusCode::OK, "hello");
+        return HttpResponse(HttpStatusCode::OK, "id: " + bodyParams["id"]);
     });
 
     server.start();

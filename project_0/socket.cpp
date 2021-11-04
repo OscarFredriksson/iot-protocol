@@ -2,22 +2,24 @@
 #include <stdio.h>
 
 Socket::Socket(const int port):
-    port(port)
+    port(port) 
 {
    
 }
 
-int Socket::connect() {
+int Socket::connect() 
+{
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     
     // Creating socket file descriptor 
     if (sockfd == 0) 
     { 
-        perror("socket failed"); 
+        std::cerr << "socket failed\n"; 
         return -1; 
     } 
        
     int use_opt = 1;
+
     // Attach to port even if it is already in use
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &use_opt, sizeof(use_opt)))
     { 
@@ -55,21 +57,22 @@ int Socket::connect() {
     return 1;
 }
 
-std::string Socket::receive()
+std::string Socket::receive() 
 {
-    // int valread;
     int msg_size = 1024;
     char msg[msg_size]; 
-    read(newsockfd, msg, msg_size); 
+    std::cout << "Read Results: " << read(newsockfd, msg, msg_size) << "\n"; 
     
     return std::string(msg);
 }
 
-void Socket::respond(const std::string& msg){
+void Socket::respond(const std::string& msg) 
+{
     send(newsockfd, msg.c_str(), strlen(msg.c_str()), 0);
 }
 
-void Socket::close() {
+void Socket::close() 
+{
     ::close(sockfd);
     ::close(newsockfd);
 }

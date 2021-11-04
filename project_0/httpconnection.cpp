@@ -9,7 +9,7 @@ HttpConnection::HttpConnection(const int port):
 HttpRequest HttpConnection::receive() {
     std::string msg = Socket::receive();
 
-    // std::cout << msg << "\n";
+    std::cout << msg << "\n";
 
     auto split_msg = splitStr(msg, " ");
 
@@ -57,8 +57,11 @@ std::string HttpConnection::getStatusCodeString(HttpStatusCode statusCode) {
 }
 
 HttpRequestType HttpConnection::parseRequestType(const std::string& typeStr) {
-    if(typeStr == "GET") return HttpRequestType::GET;
-    else if(typeStr == "POST") return HttpRequestType::POST;
+    if      (typeStr == "GET")      return HttpRequestType::GET;
+    else if (typeStr == "POST")     return HttpRequestType::POST;
+    else if (typeStr == "PUT")      return HttpRequestType::PUT;
+    else if (typeStr == "DELETE")   return HttpRequestType::DELETE;
+    
     return HttpRequestType::UNKOWN;
 }
 
