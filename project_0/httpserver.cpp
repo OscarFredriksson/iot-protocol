@@ -11,12 +11,12 @@ void HttpServer::addGetHandler(const std::string& url, std::function<HttpRespons
     getHandlers.insert({url, handler});
 }
 
-void HttpServer::addPostHandler(const std::string& url, std::function<HttpResponse(ParamMap, ParamMap)> handler)
+void HttpServer::addPostHandler(const std::string& url, std::function<HttpResponse(ParamMap, JsonObj)> handler)
 {
     postHandlers.insert({url, handler});
 }
 
-void HttpServer::addPutHandler(const std::string& url, std::function<HttpResponse(ParamMap, ParamMap)> handler)
+void HttpServer::addPutHandler(const std::string& url, std::function<HttpResponse(ParamMap, JsonObj)> handler)
 {
     putHandlers.insert({url, handler});
 }
@@ -50,7 +50,8 @@ void HttpServer::start()
             case POST: {
                 if(postHandlers.find(request.url) != postHandlers.end()){
                     auto handler = postHandlers[request.url];
-                    response = handler(request.urlParams, request.bodyParams);
+
+                    response = handler(request.urlParams, request.jsonBody);
                 }
                 else response = HttpResponse(NOT_FOUND);
                 break;
@@ -58,7 +59,7 @@ void HttpServer::start()
             case PUT: {
                 if(putHandlers.find(request.url) != putHandlers.end()){
                     auto handler = putHandlers[request.url];
-                    response = handler(request.urlParams, request.bodyParams);
+                    response = handler(request.urlParams, request.jsonBody);
                 }
                 else response = HttpResponse(NOT_FOUND);
                 break;

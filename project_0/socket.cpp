@@ -59,9 +59,9 @@ int Socket::connect()
 
 std::string Socket::receive() 
 {
-    int msg_size = 1024;
+    int msg_size = 2048;
     char msg[msg_size]; 
-    std::cout << "Read Results: " << read(newsockfd, msg, msg_size) << "\n"; 
+    read(newsockfd, msg, msg_size); 
     
     return std::string(msg);
 }

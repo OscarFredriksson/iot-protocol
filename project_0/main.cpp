@@ -1,25 +1,61 @@
 #include <string>
 #include <vector>
+#include <fstream>
+// #include <nlohmann/json.hpp>
 #include "httpserver.h"
+ 
+// using jsonObj = nlohmann::json;
 
 int main() 
 {
     const int port = 8080;
+    const std::string filename = "sensors.json";
 
     HttpServer server(port);
 
     server.addGetHandler("/", [](ParamMap urlParams){
-        return HttpResponse(HttpStatusCode::OK, "hello world");
+        std::string helloWorldHTML = "<h1>Hello World</h1>";
+
+        return HttpResponse(HttpStatusCode::OK, helloWorldHTML, HttpContentType::html);
     });
 
-    server.addGetHandler("/test", [](ParamMap urlParams){
-        
-        return HttpResponse(HttpStatusCode::OK, "hello, id: " + urlParams["id"]);
+    server.addGetHandler("/sensor", [filename](ParamMap urlParams){
+        std::ifstream i(filename);
+        JsonObj j;
+        i >> j;
+        i.close();
+
+        if(!urlParams.count("id"))
+            return HttpResponse(HttpStatusCode::BAD_REQUEST, "missing id parameter");
+
+        std::string id = urlParams["id"];
+
+        JsonObj sensor = j[id];
+
+        return HttpResponse(HttpStatusCode::OK, sensor.dump(), HttpContentType::json);
     });
 
-    server.addPostHandler("/test", [](ParamMap urlParams, ParamMap bodyParams){
-        
-        return HttpResponse(HttpStatusCode::OK, "id: " + bodyParams["id"]);
+
+    server.addPostHandler("/sensor", [filename](ParamMap urlParams, JsonObj jsonBody){
+        if(!jsonBody.contains("id"))
+            return HttpResponse(HttpStatusCode::BAD_REQUEST, "missing id parameter");
+
+        std::string id = std::to_string(static_cast<int>(jsonBody["id"]));
+
+        std::ifstream i(filename);
+        JsonObj j;
+        i >> j;
+        i.close();
+
+        if(j.contains(id))
+             return HttpResponse(HttpStatusCode::CONFLICT, "Sensor already exists"); 
+
+        j[id]["values"] = {};
+
+        std::ofstream o(filename);
+        o << std::setw(4) << j << std::endl;
+
+        return HttpResponse(HttpStatusCode::OK, "Sensor with id '" + id + "' added.");
     });
 
     server.start();

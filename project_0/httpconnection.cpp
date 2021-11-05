@@ -8,9 +8,7 @@ HttpConnection::HttpConnection(const int port):
 
 HttpRequest HttpConnection::receive() {
     std::string msg = Socket::receive();
-
-    std::cout << msg << "\n";
-
+ 
     auto split_msg = splitStr(msg, " ");
 
     HttpRequest request;
@@ -19,8 +17,9 @@ HttpRequest HttpConnection::receive() {
     
     request.headers = parseHeaders(msg);
 
-    if(request.headers["Content-Type"] == "application/x-www-form-urlencoded"){
-        request.bodyParams = parseURLEncodedBody(msg);
+    if(request.headers["Content-Type"] == "application/json"){
+        request.jsonBody = parseJsonBody(msg);
+        // request.jsonBody = parseURLEncodedBody(msg);
     }
 
     auto split_url = splitStr(split_msg[1], "?");
@@ -36,10 +35,15 @@ void HttpConnection::respond(HttpStatusCode statusCode, const std::string& body)
 }
 
 void HttpConnection::respond(HttpResponse response) {
+    std::string headersStr = "";
+
+    for(int i = 0; i < response.headers.size(); i++) {
+        headersStr += response.headers[i] += "\r\n";
+    }
+    
     Socket::respond(
-        "HTTP/1.1 " + 
-        getStatusCodeString(response.statusCode) + 
-        " \r\n\r\n" + 
+        "HTTP/1.1 " + getStatusCodeString(response.statusCode) + " \r\n" + 
+        headersStr + "\r\n" + 
         response.body + 
         "\r\n");
 }
@@ -50,6 +54,10 @@ std::string HttpConnection::getStatusCodeString(HttpStatusCode statusCode) {
             return "200 OK";
         case HttpStatusCode::METHOD_NOT_ALLOWED:
             return "405 Method Not Allowed";
+        case HttpStatusCode::CONFLICT:
+            return "409 Conflict";
+        case HttpStatusCode::BAD_REQUEST:
+            return "400 Bad Request";
         default:
         case HttpStatusCode::NOT_FOUND:
             return "404 Not Found";
@@ -84,6 +92,19 @@ ParamMap HttpConnection::parseHeaders(const std::string& msg) {
     return params;
 }
 
+JsonObj HttpConnection::parseJsonBody(const std::string& msg) {
+    
+    std::size_t start = msg.find("\r\n{");
+
+    std::string body = msg.substr(start);
+
+    while(!body.empty() && !std::isprint(body.back())) {
+        body.pop_back();
+    }
+
+    return JsonObj::parse(body);
+}
+
 ParamMap HttpConnection::parseURLEncodedBody(const std::string& msg) {
     std::string body = msg.substr(msg.find_last_of("\r\n") + 1); 
 
@@ -97,7 +118,9 @@ ParamMap HttpConnection::parseParamStr(const std::string& paramStr) {
     
     for(int i = 0; i < split_params.size(); i++){
         auto split_param = splitStr(split_params[i], "=");
-
+        while(!split_param[1].empty() && !std::isprint(split_param[1].back())) {
+            split_param[1].pop_back();
+        }
         params.insert(std::make_pair(split_param[0], split_param[1]));
     }
 
