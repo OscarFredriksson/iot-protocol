@@ -52,6 +52,8 @@ std::string HttpConnection::getStatusCodeString(HttpStatusCode statusCode) {
     switch(statusCode){
         case HttpStatusCode::OK:
             return "200 OK";
+        case HttpStatusCode::CREATED:
+            return "201 Created";
         case HttpStatusCode::METHOD_NOT_ALLOWED:
             return "405 Method Not Allowed";
         case HttpStatusCode::CONFLICT:

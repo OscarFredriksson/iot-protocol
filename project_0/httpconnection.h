@@ -8,6 +8,7 @@ typedef std::unordered_map<std::string, std::string> ParamMap;
 
 enum HttpStatusCode{
     OK, //200
+    CREATED, //201
     NOT_FOUND, //404
     METHOD_NOT_ALLOWED, //405 
     CONFLICT, //409,
@@ -25,7 +26,8 @@ enum HttpRequestType{
 enum HttpContentType {
         json,
         html
-    };
+};
+
 struct HttpRequest {
     HttpRequestType type;
     std::string url;

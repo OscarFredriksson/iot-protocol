@@ -1,11 +1,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
-// #include <nlohmann/json.hpp>
 #include "httpserver.h"
  
-// using jsonObj = nlohmann::json;
-
 int main() 
 {
     const int port = 8080;
@@ -50,12 +47,12 @@ int main()
         if(j.contains(id))
              return HttpResponse(HttpStatusCode::CONFLICT, "Sensor already exists"); 
 
-        j[id]["values"] = {};
+        j[id]["values"] = nullptr;
 
         std::ofstream o(filename);
         o << std::setw(4) << j << std::endl;
 
-        return HttpResponse(HttpStatusCode::OK, "Sensor with id '" + id + "' added.");
+        return HttpResponse(HttpStatusCode::CREATED, "Sensor with id '" + id + "' added.");
     });
 
     server.start();
