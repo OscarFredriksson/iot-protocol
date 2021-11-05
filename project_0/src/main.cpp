@@ -32,7 +32,6 @@ int main()
         return HttpResponse(HttpStatusCode::OK, sensor.dump(), HttpContentType::json);
     });
 
-
     server.addPostHandler("/sensor", [filename](ParamMap urlParams, JsonObj jsonBody){
         if(!jsonBody.contains("id"))
             return HttpResponse(HttpStatusCode::BAD_REQUEST, "missing id parameter");

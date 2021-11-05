@@ -1,6 +1,9 @@
-src = $(wildcard *.cpp)
+SRC := $(wildcard src/*.cpp)
+FLAGS := -std=c++17 -o
 
-main: $(src)
-	g++ $^ -std=c++17 -o $@
+
+main: $(SRC)
+	g++ $^ $(FLAGS) $@
+
 run: main
 	./main
