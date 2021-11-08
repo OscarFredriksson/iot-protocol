@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include "socket.h"
+#include "coapmessage.h"
 
 int main() 
 {
@@ -12,7 +13,7 @@ int main()
 
     std::string msg = {
         0x40,
-        0x01, 
+        CoapCode::GET, 
         0x04, 
         static_cast<char>(0xd2),  
         static_cast<char>(0xb4),
@@ -26,6 +27,7 @@ int main()
         std::cout << "Failed to connect to " << hostname << "\n";
 
     socket.send(msg);
+
     std::cout << socket.receive() << "\n";
 
     return 0;
