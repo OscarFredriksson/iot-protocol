@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <iostream>
 
 enum CoapType {
     Confirmable = 0x00,
@@ -53,7 +54,7 @@ class CoapMessage {
 public:
     CoapMessage(CoapCode code, uint16_t messageId, const std::string& path);
 
-    const char version = 0x01;
+    const uint8_t version: 2 = 1;
     const CoapType type = Confirmable; 
     const uint8_t tokenLength: 4 = 0;
     const uint8_t optionDelta: 4 = 11; //Uri-Path
@@ -63,4 +64,8 @@ public:
     const std::string path;
 
     std::vector<char> serialize();
+
+    friend std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const CoapType& rhs); 
+    friend std::ostream& operator<<(std::ostream& os, const CoapCode& rhs); 
 };

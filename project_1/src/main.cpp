@@ -85,12 +85,14 @@ int main()
 
     CoapMessage msg(code, messageId, path);
 
+    std::cout << msg << "\n";
+
     if(socket.connect() <= 0)
         std::cout << "Failed to connect to " << hostname << "\n";
 
     socket.send(msg.serialize());
 
-    std::cout << "\nMessage Response:\n";
+    std::cout << "Message Response:\n";
     std::cout << socket.receive() << "\n";
 
     return 0;
