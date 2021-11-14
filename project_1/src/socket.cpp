@@ -64,6 +64,11 @@ void Socket::send(const std::string& msg)
     ::send(sockfd, msg.c_str(), msg.size(), 0);
 }
 
+void Socket::send(const std::vector<char>& msg)
+{
+    ::send(sockfd, msg.data(), msg.size(), 0);
+}
+
 void Socket::close() 
 {
     ::close(sockfd);

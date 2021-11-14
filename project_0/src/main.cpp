@@ -19,9 +19,9 @@ void saveSensors(const std::string& filename, JsonObj j) {
 
 int main() 
 {
-    const int port = 8080;
     const std::string filename = "sensors.json";
 
+    const int port = 80;
     HttpServer server(port);
 
     server.addGetHandler("/", [](ParamMap urlParams){

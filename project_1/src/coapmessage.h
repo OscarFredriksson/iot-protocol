@@ -1,5 +1,7 @@
 #include <array>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 enum CoapType {
     Confirmable = 0x00,
@@ -49,8 +51,16 @@ enum CoapCode {
 
 class CoapMessage {
 public:
-    uint8_t version : 2; 
-    CoapType type;
-    uint8_t tokenLength : 4;
+    CoapMessage(CoapCode code, uint16_t messageId, const std::string& path);
 
+    const char version = 0x01;
+    const CoapType type = Confirmable; 
+    const uint8_t tokenLength: 4 = 0;
+    const uint8_t optionDelta: 4 = 11; //Uri-Path
+
+    const CoapCode code;
+    const uint16_t messageId;
+    const std::string path;
+
+    std::vector<char> serialize();
 };

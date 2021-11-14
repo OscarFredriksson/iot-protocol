@@ -96,7 +96,7 @@ ParamMap HttpConnection::parseHeaders(const std::string& msg) {
 
 JsonObj HttpConnection::parseJsonBody(const std::string& msg) {
     
-    std::size_t start = msg.find("\r\n{");
+    std::size_t start = msg.find("\r\n\r\n{");
 
     std::string body = msg.substr(start);
 

@@ -19,6 +19,8 @@ public:
 
     void send(const std::string& msg);
 
+    void send(const std::vector<char>& msg);
+
     void close();
 
 private:

@@ -83,4 +83,3 @@ void HttpServer::start()
         httpConnection.close();
     }
 }
-
