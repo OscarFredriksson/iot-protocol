@@ -5,7 +5,7 @@
 #include <iostream>
 
 enum CoapType {
-    Confirmable = 00,
+    Confirmable = 0,
     NonConfirmable = 1,
     Acknowledgement = 2,
     Reset = 3
