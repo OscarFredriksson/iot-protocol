@@ -92,7 +92,7 @@ private:
     struct Option{
         CoapOptionDelta delta;
         uint8_t length: 4;
-        std::string value;
+        std::vector<char> value;
     };
 
     std::vector<Option> options;

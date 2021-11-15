@@ -30,15 +30,11 @@ int Socket::connect()
     addr_in.sin_family = AF_INET;
     addr_in.sin_port = htons(port);
 
-    
-
     addrinfo* first_addr = NULL;
     
     getaddrinfo(hostname.c_str(), std::to_string(port).c_str(), 0, &first_addr);
 
     for (addrinfo* addr_it = first_addr; addr_it; addr_it = addr_it->ai_next) {
-        
-        
         
         if (::connect(sockfd, addr_it->ai_addr, sizeof(addr_in)) < 0) { 
             std::cerr << "ERROR connecting\n";
@@ -74,5 +70,4 @@ void Socket::send(const std::vector<char>& msg)
 void Socket::close() 
 {
     ::close(sockfd);
-    // ::close(newsockfd);
 }

@@ -1,4 +1,5 @@
 #include "coapmessage.h"
+#include <iomanip>
 
 CoapMessage::CoapMessage(CoapCode code, uint16_t messageId):
         code(code), messageId(messageId)
@@ -211,13 +212,26 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
     os << "Delta: " << rhs.delta << delimiter;
     os << "Length: " << int(rhs.length) << delimiter;
     os << "Value: ";
-    if(rhs.delta == ContentFormat)
+    switch(rhs.delta)
     {  
-        if(rhs.value.empty()) os << text;
-        else os << static_cast<CoapContentFormat>(std::stoi(rhs.value));
+        case ContentFormat:
+            if(rhs.value.empty()) os << CoapContentFormat::text;
+            else {
+                uint16_t val = rhs.value[0];
+
+                if(rhs.value.size() > 1) val = val << 8 | rhs.value[1];
+
+                os << static_cast<CoapContentFormat>(int(val));
+            }
+            break;
+        case UriPath:
+            for(auto c: rhs.value) os << c;
+            break;
+        default:
+            for(auto c: rhs.value) os << std::setfill('0') << std::setw(2) << std::hex << (0xff & int(c));
+            break;
     }
-    else os << rhs.value;
-    
+
     return os;
 } 
 
@@ -250,7 +264,7 @@ void CoapMessage::setOptionUriPath(const std::string& path)
     option.delta = UriPath;
     option.length = path.size();
 
-    option.value = path;
+    for(const auto&c: path) option.value.push_back(c);
 
     options.push_back(option);
 }
@@ -273,7 +287,6 @@ int CoapMessage::deserialize(const std::vector<char>& msg)
 
         //Found payload, read payload and then we are done
         if((msg[byteIt] & 0xff) == 0xff) { 
-            std::cout << "Found payload\n"; 
             payload = "";
             while(byteIt++ != msg.size()-1){
                 payload += char(msg[byteIt]);
@@ -283,13 +296,10 @@ int CoapMessage::deserialize(const std::vector<char>& msg)
             Option option;
             option.delta = static_cast<CoapOptionDelta>(prevDelta + ((msg[byteIt] & 0xf0) >> 4));
             prevDelta = option.delta;
-            std::cout << "Delta: " << option.delta << "\n";
             option.length = msg[byteIt] & 0x0f;
             byteIt++;
-            option.value = "";
             for(int i = 0; i < option.length; i++){
-                std::cout << int(msg[byteIt]) << "\n";
-                option.value += msg[byteIt++];
+                option.value.push_back(msg[byteIt++]);
             }
             byteIt--;
             options.push_back(option);
