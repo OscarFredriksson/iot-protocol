@@ -5,10 +5,10 @@
 #include <iostream>
 
 enum CoapType {
-    Confirmable = 0x00,
-    NonConfirmable = 0x01,
-    Acknowledgement = 0x10,
-    Reset = 0x11
+    Confirmable = 00,
+    NonConfirmable = 1,
+    Acknowledgement = 2,
+    Reset = 3
 };
 
 enum CoapCode {
@@ -50,22 +50,70 @@ enum CoapCode {
     ProxyingNotSupported = 0xa5
 };
 
+enum CoapOptionDelta {
+    IfMatch = 1,
+    UriHost = 3,
+    ETag = 4,
+    IfNoneMatch = 5,
+    UriPort = 7,
+    LocationPath = 8,
+    UriPath = 11,
+    ContentFormat = 12,
+    MaxAge = 14,
+    UriQuery = 15,
+    Accept = 17,
+    LocationQuery = 20,
+    Size2 = 28,
+    ProxyUri = 35,
+    ProxyScheme = 39,
+    Size1 = 60
+};
+
+enum CoapContentFormat {
+    text = 0,
+    linkFormat = 40,
+    xml = 41,
+    octetStream = 42,
+    exi = 47,
+    json = 50,
+    cbor = 60
+};
+
 class CoapMessage {
+
+private:
+    uint8_t version: 2 = 1;
+    CoapType type = Confirmable; 
+    uint8_t tokenLength: 4 = 0;
+
+    CoapCode code = EMPTY;
+    uint16_t messageId = 0;
+
+    struct Option{
+        CoapOptionDelta delta;
+        uint8_t length: 4;
+        std::string value;
+    };
+
+    std::vector<Option> options;
+
+    std::string payload;
+
 public:
-    CoapMessage(CoapCode code, uint16_t messageId, const std::string& path);
+    CoapMessage() = default;
 
-    const uint8_t version: 2 = 1;
-    const CoapType type = Confirmable; 
-    const uint8_t tokenLength: 4 = 0;
-    const uint8_t optionDelta: 4 = 11; //Uri-Path
+    CoapMessage(CoapCode code, uint16_t messageId);
 
-    const CoapCode code;
-    const uint16_t messageId;
-    const std::string path;
+    void setOptionUriPath(const std::string& path);
+
+    int deserialize(const std::vector<char>& msg);
 
     std::vector<char> serialize();
 
     friend std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs);
     friend std::ostream& operator<<(std::ostream& os, const CoapType& rhs); 
-    friend std::ostream& operator<<(std::ostream& os, const CoapCode& rhs); 
+    friend std::ostream& operator<<(std::ostream& os, const CoapCode& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const CoapOptionDelta& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const CoapContentFormat& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const Option& rhs);
 };

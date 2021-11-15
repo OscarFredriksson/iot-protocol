@@ -37,7 +37,9 @@ int Socket::connect()
     getaddrinfo(hostname.c_str(), std::to_string(port).c_str(), 0, &first_addr);
 
     for (addrinfo* addr_it = first_addr; addr_it; addr_it = addr_it->ai_next) {
-
+        
+        
+        
         if (::connect(sockfd, addr_it->ai_addr, sizeof(addr_in)) < 0) { 
             std::cerr << "ERROR connecting\n";
             continue;
@@ -50,13 +52,13 @@ int Socket::connect()
     return -1;
 }
 
-std::string Socket::receive() 
+std::vector<char> Socket::receive()
 {
-    int msg_size = 2048;
-    char msg[msg_size]; 
-    read(sockfd, msg, msg_size);
-    
-    return std::string(msg);
+    int msgSize = 1024;
+    char msg[msgSize]; 
+    int byteCount = read(sockfd, msg, msgSize);
+
+    return std::vector<char>(msg, msg + byteCount);
 }
 
 void Socket::send(const std::string& msg) 

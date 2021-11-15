@@ -15,7 +15,7 @@ public:
 
     int connect();
 
-    std::string receive();
+    std::vector<char> receive();
 
     void send(const std::string& msg);
 
@@ -28,9 +28,4 @@ private:
     const int port;
     
     int sockfd;
-    // int newsockfd;
-    // sockaddr_in addr_in; 
-    // sockaddr* addr;
-    // int addrlen;
-    // hostent *server;
 };

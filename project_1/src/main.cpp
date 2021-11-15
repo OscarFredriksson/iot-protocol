@@ -76,6 +76,11 @@ int main()
     const int port = 5683;
 
     Socket socket(hostname, port);
+  
+    if(socket.connect() <= 0) {
+        std::cout << "Failed to connect to " << hostname << "\n";
+        return -1;
+    }
 
     CoapCode code = userInputGetCode();    
 
@@ -83,17 +88,23 @@ int main()
 
     std::string path = userInputGetPath();
 
-    CoapMessage msg(code, messageId, path);
+    CoapMessage request(code, messageId);
+    
+    request.setOptionUriPath(path);
 
-    std::cout << msg << "\n";
+    std::cout << "\nRequest:" << request << "\n";
 
-    if(socket.connect() <= 0)
-        std::cout << "Failed to connect to " << hostname << "\n";
-
-    socket.send(msg.serialize());
+    socket.send(request.serialize());
 
     std::cout << "Message Response:\n";
-    std::cout << socket.receive() << "\n";
+    
+    CoapMessage response;
+    if(response.deserialize(socket.receive()) == -1) {
+        std::cout << "Failed to deserialize response :( \n";
+        return -1; 
+    }
+
+    std::cout << response << "\n";
 
     return 0;
 }
