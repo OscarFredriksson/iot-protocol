@@ -5,9 +5,7 @@
 
 Socket::Socket(const std::string& hostname, const int port):
     hostname(hostname), port(port) 
-{
-
-}
+{}
 
 int Socket::connect() 
 {

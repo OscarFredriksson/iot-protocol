@@ -79,8 +79,8 @@ enum CoapContentFormat {
     cbor = 60
 };
 
-class CoapMessage {
-
+class CoapMessage 
+{
 private:
     uint8_t version: 2 = 1;
     CoapType type = Confirmable; 

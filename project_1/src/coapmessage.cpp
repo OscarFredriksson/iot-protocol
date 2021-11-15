@@ -5,7 +5,8 @@ CoapMessage::CoapMessage(CoapCode code, uint16_t messageId):
         code(code), messageId(messageId)
 {}
 
-std::ostream& operator<<(std::ostream& os, const CoapType& rhs) {
+std::ostream& operator<<(std::ostream& os, const CoapType& rhs) 
+{
     switch(rhs) {
         case Confirmable: 
             os << "Confirmable";
@@ -24,7 +25,8 @@ std::ostream& operator<<(std::ostream& os, const CoapType& rhs) {
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CoapCode& rhs) {
+std::ostream& operator<<(std::ostream& os, const CoapCode& rhs) 
+{
     switch(rhs) {
         case EMPTY:
             os << "EMPTY";
@@ -212,6 +214,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
     os << "Delta: " << rhs.delta << delimiter;
     os << "Length: " << int(rhs.length) << delimiter;
     os << "Value: ";
+    
     switch(rhs.delta)
     {  
         case ContentFormat:
@@ -224,6 +227,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
                 os << static_cast<CoapContentFormat>(int(val));
             }
             break;
+        case LocationPath:
         case UriPath:
             for(auto c: rhs.value) os << c;
             break;
@@ -316,7 +320,6 @@ std::vector<char> CoapMessage::serialize()
         char(code),
         char(messageId >> 8),  
         char(messageId & 0xff),
-        // char(optionDelta << 4 | optionLength),
     };
 
     for(int i = 0; i < options.size(); i++) {
@@ -324,7 +327,6 @@ std::vector<char> CoapMessage::serialize()
         msg.push_back(char(option.delta << 4 | option.length));
         for(auto c: option.value) msg.push_back(c);
     }
-
 
     return msg;
 }

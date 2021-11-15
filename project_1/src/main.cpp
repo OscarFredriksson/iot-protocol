@@ -15,8 +15,7 @@ bool isNumber(const std::string &str)
 }
 
 CoapCode userInputGetCode() 
-{
-    
+{   
     std::cout << "Type (1) for GET, (2) for POST, (3) for PUT or (4) for DELETE:\n";
 
     while(true) 
@@ -56,7 +55,6 @@ uint16_t userInputGetMsgId()
 
             return static_cast<uint16_t>(input_num);
         }
-
     }
 }
 
