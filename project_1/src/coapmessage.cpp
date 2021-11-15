@@ -228,7 +228,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
             for(auto c: rhs.value) os << c;
             break;
         default:
-            for(auto c: rhs.value) os << std::hex << (0xff & int(c));
+            for(auto c: rhs.value) os << std::hex << (0xff & static_cast<int>(c)) << " ";
             break;
     }
 
@@ -245,13 +245,13 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs)
     os << "Type: " << rhs.type << delimiter;
     os << "Token Length: " << int(rhs.tokenLength) << delimiter; 
     os << "Code: " << rhs.code << delimiter;
-    os << "Message Id: " << rhs.messageId << delimiter;
+    os << "Message Id: " << rhs.messageId;
 
     for(int i = 0; i < rhs.options.size(); i++) {
         const auto& option = rhs.options[i];
-        os << "Option #" << i+1 << " " << option << delimiter;
+        os << "\nOption #" << i+1 << ": " << option << delimiter;
     } 
-    os << "Payload: " << rhs.payload << "\n";
+    os << "\nPayload: " << rhs.payload << "\n";
     os << "--------------------\n";
 
     return os;
