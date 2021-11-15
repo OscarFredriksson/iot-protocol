@@ -228,7 +228,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
             for(auto c: rhs.value) os << c;
             break;
         default:
-            for(auto c: rhs.value) os << std::setfill('0') << std::setw(2) << std::hex << (0xff & int(c));
+            for(auto c: rhs.value) os << std::hex << (0xff & int(c));
             break;
     }
 

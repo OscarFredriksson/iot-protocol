@@ -96,7 +96,7 @@ int main()
 
     socket.send(request.serialize());
 
-    std::cout << "Message Response:\n";
+    std::cout << "Message Response:";
     
     CoapMessage response;
     if(response.deserialize(socket.receive()) == -1) {
