@@ -211,7 +211,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage::Option& rhs)
 {
     std::string delimiter = ", ";
 
-    os << "Delta: " << rhs.delta << delimiter;
+    os << "Delta: " << int(rhs.delta) << delimiter;
     os << "Length: " << int(rhs.length) << delimiter;
     os << "Value: ";
     
@@ -273,6 +273,11 @@ void CoapMessage::setOptionUriPath(const std::string& path)
     options.push_back(option);
 }
 
+void CoapMessage::setPayload(const std::string& payload)
+{
+    this->payload = payload;
+}
+
 int CoapMessage::deserialize(const std::vector<char>& msg) 
 {
     int byteIt = 0;
@@ -327,6 +332,10 @@ std::vector<char> CoapMessage::serialize()
         msg.push_back(char(option.delta << 4 | option.length));
         for(auto c: option.value) msg.push_back(c);
     }
+
+    if(!payload.empty()) msg.push_back(0xff);
+
+    for(int i = 0; i < payload.size(); i++) msg.push_back(payload[i]);
 
     return msg;
 }

@@ -68,6 +68,16 @@ std::string userInputGetPath()
     return input;
 }
 
+std::string userInputGetPayload() 
+{
+    std::cout << "Type a payload for your request:\n";
+
+    std::string input;
+    std::getline(std::cin, input);
+        
+    return input;
+}
+
 int main() 
 {
     const std::string hostname = "coap.me";
@@ -89,6 +99,10 @@ int main()
     CoapMessage request(code, messageId);
     
     request.setOptionUriPath(path);
+
+    std::string payload = userInputGetPayload();
+
+    request.setPayload(payload);
 
     std::cout << "\nRequest:" << request << "\n";
 

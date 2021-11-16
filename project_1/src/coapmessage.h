@@ -106,6 +106,8 @@ public:
 
     void setOptionUriPath(const std::string& path);
 
+    void setPayload(const std::string& payload);
+
     int deserialize(const std::vector<char>& msg);
 
     std::vector<char> serialize();
