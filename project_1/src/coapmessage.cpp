@@ -253,7 +253,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs)
 
     for(int i = 0; i < rhs.options.size(); i++) {
         const auto& option = rhs.options[i];
-        os << "\nOption #" << i+1 << ": " << option << delimiter;
+        os << "\nOption #" << i+1 << ": " << option;
     } 
     os << "\nPayload: " << rhs.payload << "\n";
     os << "--------------------\n";
