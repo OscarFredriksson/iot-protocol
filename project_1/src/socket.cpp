@@ -42,10 +42,11 @@ std::vector<char> Socket::receive()
 {
     int msgSize = 1024;
     char msg[msgSize];
+    
+    //Receive a response into a fixed size style char array
     int byteCount = read(sockfd, msg, msgSize);
 
-    std::cout << "Bytes: " << byteCount << "\n";
-
+    //Convert the char array to a vector that is as long as the number of read bytes
     return std::vector<char>(msg, msg + byteCount);
 }
 

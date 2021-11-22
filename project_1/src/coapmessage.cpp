@@ -321,20 +321,27 @@ int CoapMessage::deserialize(const std::vector<char>& msg)
 std::vector<char> CoapMessage::serialize()
 {
     std::vector<char> msg = {
+        //Bitshift version and type to place them at the correct places in the byte, use the or-operator to append them together with the token length
         char((version << 6) | (type << 4) | tokenLength),
         char(code),
+        //The message Id requires two bytes, add the 8 most significant bits to one byte and the 8 least significant to another
         char(messageId >> 8),  
         char(messageId & 0xff),
     };
 
+    //Loop through all the options and append them to the message
     for(int i = 0; i < options.size(); i++) {
         const Option& option = options[i];
+        //Combine the delta and length values to one byte
         msg.push_back(char(option.delta << 4 | option.length));
+        //Go through every character in the value string and add them to the byte array
         for(auto c: option.value) msg.push_back(c);
     }
 
+    //If there is a payload add the 8 1s
     if(!payload.empty()) msg.push_back(0xff);
 
+    //Loop through the payload and add each character to the byte array
     for(int i = 0; i < payload.size(); i++) msg.push_back(payload[i]);
 
     return msg;

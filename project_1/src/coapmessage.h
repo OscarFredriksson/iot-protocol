@@ -108,9 +108,9 @@ public:
 
     void setPayload(const std::string& payload);
 
-    int deserialize(const std::vector<char>& msg);
-
     std::vector<char> serialize();
+
+    int deserialize(const std::vector<char>& msg);
 
     friend std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs);
     friend std::ostream& operator<<(std::ostream& os, const CoapType& rhs); 
