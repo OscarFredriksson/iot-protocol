@@ -4,14 +4,16 @@
 #include <vector>
 #include <iostream>
 
-enum CoapType {
+enum CoapType
+{
     Confirmable = 0,
     NonConfirmable = 1,
     Acknowledgement = 2,
     Reset = 3
 };
 
-enum CoapCode {
+enum CoapCode
+{
     //Method Codes
     EMPTY = 0x00,
     GET = 0x01,
@@ -50,7 +52,8 @@ enum CoapCode {
     ProxyingNotSupported = 0xa5
 };
 
-enum CoapOptionDelta {
+enum CoapOptionDelta
+{
     IfMatch = 1,
     UriHost = 3,
     ETag = 4,
@@ -69,7 +72,8 @@ enum CoapOptionDelta {
     Size1 = 60
 };
 
-enum CoapContentFormat {
+enum CoapContentFormat
+{
     text = 0,
     linkFormat = 40,
     xml = 41,
@@ -79,19 +83,20 @@ enum CoapContentFormat {
     cbor = 60
 };
 
-class CoapMessage 
+class CoapMessage
 {
 private:
-    uint8_t version: 2 = 1;
-    CoapType type = Confirmable; 
-    uint8_t tokenLength: 4 = 0;
+    uint8_t version : 2 = 1;
+    CoapType type = CoapType::Confirmable;
+    uint8_t tokenLength : 4 = 0;
 
-    CoapCode code = EMPTY;
+    CoapCode code = CoapType::EMPTY;
     uint16_t messageId = 0;
 
-    struct Option{
-        CoapOptionDelta delta;
-        uint8_t length: 4;
+    struct Option
+    {
+        CoapOptionDelta CoapOptionDelta::delta;
+        uint8_t length : 4;
         std::vector<char> value;
     };
 
@@ -104,9 +109,9 @@ public:
 
     CoapMessage(CoapCode code, uint16_t messageId);
 
-    void setOptionUriPath(const std::string& path);
+    void setOptionUriPath(const std::string &path);
 
-    void setPayload(const std::string& payload);
+    void setPayload(const std::string &payload);
 
     std::vector<char> serialize();
 
