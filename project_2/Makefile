@@ -1,4 +1,4 @@
-SRC := $(wildcard src/*.cpp)
+SRC := $(wildcard src/*.cpp) $(wildcard src/*/*.cpp)
 FLAGS := -std=c++20 -o
 
 

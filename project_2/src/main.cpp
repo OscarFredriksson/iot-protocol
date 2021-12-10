@@ -2,7 +2,8 @@
 #include <vector>
 #include <fstream>
 #include "socket.h"
-#include "mqttmessage.h"
+#include "mqtt-messages/header.h"
+#include "mqtt-messages/connMsg.h"
 
 int main() 
 {
@@ -19,11 +20,14 @@ int main()
 
     if(msg.empty()) return 0;
 
-    MqttMessage mqttMessage;
+    mqtt::ConnMsg connMsg;
 
-    mqttMessage.deserialize(msg);
+    if(!connMsg.deserialize(msg)) {
+        std::cerr << "Failed to deserialize Connection Message\n";
+        return 0;
+    }
 
-    std::cout << mqttMessage << "\n";
+    std::cout << connMsg << "\n";
 
     return 0;
 }
