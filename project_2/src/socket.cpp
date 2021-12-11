@@ -74,9 +74,9 @@ std::vector<char> Socket::receive()
     return std::vector<char>(msg, msg + msgSize);
 }
 
-void Socket::respond(const std::string& msg) 
+void Socket::respond(const std::vector<char>& msg)
 {
-    send(newsockfd, msg.c_str(), strlen(msg.c_str()), 0);
+    ::send(newsockfd, msg.data(), msg.size(), 0);
 }
 
 void Socket::close()

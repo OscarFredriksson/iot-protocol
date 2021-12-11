@@ -1,15 +1,14 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "header.h"
+#include "baseMsg.h"
 
 namespace mqtt {
-class ConnMsg{
+class ConnMsg : public BaseMsg {
 public:
-
-  Header header;
-
   int remainingLength;
   int nameLength;
   std::string protocolName = "";
@@ -24,4 +23,4 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const ConnMsg& rhs);
 };
-}
+} // namespace mqtt

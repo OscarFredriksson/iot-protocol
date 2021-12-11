@@ -1,33 +1,18 @@
+#include "mqtt-messages/connMsg.h"
+#include "mqtt-messages/connackMsg.h"
+#include "socket.h"
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
-#include "socket.h"
-#include "mqtt-messages/header.h"
-#include "mqtt-messages/connMsg.h"
 
-int main() 
-{
-    const int port = 1883;
+#include "broker.h"
 
-    Socket socket(port);
+int main() {
+  const int port = 1883;
 
-    if(!socket.connect()){
-        std::cout << "failed to connect\n";
-        return 0;
-    }
+  mqtt::Broker broker(port);
 
-    std::vector<char> msg = socket.receive();
+  broker.start();
 
-    if(msg.empty()) return 0;
-
-    mqtt::ConnMsg connMsg;
-
-    if(!connMsg.deserialize(msg)) {
-        std::cerr << "Failed to deserialize Connection Message\n";
-        return 0;
-    }
-
-    std::cout << connMsg << "\n";
-
-    return 0;
+  return 0;
 }

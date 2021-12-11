@@ -1,29 +1,30 @@
+#pragma once
+
 #include <iostream>
-#include <unistd.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
-#include <netinet/in.h> 
+#include <netinet/in.h>
+#include <stdlib.h>
 #include <string>
+#include <sys/socket.h>
+#include <unistd.h>
 #include <vector>
 
-class Socket 
-{
+class Socket {
 public:
-    Socket(const int port);
+  Socket(const int port);
 
-    int connect();
+  int connect();
 
-    std::vector<char> receive();
+  std::vector<char> receive();
 
-    void respond(const std::string& msg);
+  void respond(const std::vector<char>& msg);
 
-    void close();
+  void close();
 
 private:
-    int port;
-    int sockfd;
-    int newsockfd;
-    sockaddr_in addr_in; 
-    sockaddr* addr;
-    int addrlen;
+  int port;
+  int sockfd;
+  int newsockfd;
+  sockaddr_in addr_in;
+  sockaddr* addr;
+  int addrlen;
 };
