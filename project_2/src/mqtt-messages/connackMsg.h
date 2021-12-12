@@ -6,7 +6,7 @@
 #include "header.h"
 
 namespace mqtt {
-enum ReturnCode {
+enum ConnReturnCode {
   ConnectionAccepted = 0x00,
   UnnacceptableVersion,
   IdentifierRejected,
@@ -14,12 +14,12 @@ enum ReturnCode {
   BadUsrNameOrPwd,
   NotAuthorized
 };
-class ConnackMsg : public Header {
+class ConnAckMsg : public Header {
 private:
-  ReturnCode returnCode;
+  ConnReturnCode returnCode;
 
 public:
-  ConnackMsg(ReturnCode returnCode);
+  ConnAckMsg(ConnReturnCode returnCode);
 
   std::vector<char> serialize();
 };

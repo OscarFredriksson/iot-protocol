@@ -1,9 +1,6 @@
 #include <vector>
 
-#include "mqtt-messages/connMsg.h"
-#include "mqtt-messages/connackMsg.h"
-#include "mqtt-messages/publishMsg.h"
-
+#include "mqtt-messages/header.h"
 #include "socket.h"
 
 namespace mqtt {

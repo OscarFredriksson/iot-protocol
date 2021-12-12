@@ -1,9 +1,9 @@
-#include "connackMsg.h"
+#include "connAckMsg.h"
 
-mqtt::ConnackMsg::ConnackMsg(mqtt::ReturnCode returnCode)
+mqtt::ConnAckMsg::ConnAckMsg(mqtt::ConnReturnCode returnCode)
     : returnCode(returnCode), Header(CONNACK) {}
 
-std::vector<char> mqtt::ConnackMsg::serialize() {
+std::vector<char> mqtt::ConnAckMsg::serialize() {
   std::vector<char> msg = Header::serialize();
 
   msg.push_back(char(0x02));

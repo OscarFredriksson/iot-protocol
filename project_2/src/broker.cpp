@@ -1,5 +1,9 @@
 #include "broker.h"
-#include "mqtt-messages/header.h"
+#include "mqtt-messages/connAckMsg.h"
+#include "mqtt-messages/connMsg.h"
+#include "mqtt-messages/publishMsg.h"
+#include "mqtt-messages/subAckMsg.h"
+#include "mqtt-messages/subMsg.h"
 
 mqtt::Broker::Broker(const int port) : socket(port) {}
 
@@ -13,11 +17,11 @@ int mqtt::Broker::handleConnect(const std::vector<char>& msg) {
 
   std::cout << connMsg << "\n";
 
-  mqtt::ConnackMsg connackMsg(mqtt::ConnectionAccepted);
+  mqtt::ConnAckMsg connAckMsg(mqtt::ConnectionAccepted);
 
-  std::cout << connackMsg << "\n";
+  std::cout << connAckMsg << "\n";
 
-  socket.respond(connackMsg.serialize());
+  socket.respond(connAckMsg.serialize());
 
   return 1;
 }
@@ -54,7 +58,20 @@ int mqtt::Broker::handlePingReq(const std::vector<char>& msg) {
   return 1;
 }
 
-int mqtt::Broker::handleSubscribe(const std::vector<char>& msg) { return 1; }
+int mqtt::Broker::handleSubscribe(const std::vector<char>& msg) {
+  mqtt::SubMsg subMsg;
+
+  if (!subMsg.deserialize(msg)) {
+    std::cerr << "Failed to deserialize Subscribe Message\n";
+    return 0;
+  }
+
+  std::cout << subMsg << "\n";
+
+  mqtt::SubAckMsg subAckMsg(subMsg.getPacketId(), mqtt::SuccessQoS0);
+
+  return 1;
+}
 
 int mqtt::Broker::handleUnsubscribe(const std::vector<char>& msg) { return 1; }
 
