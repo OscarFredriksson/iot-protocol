@@ -26,22 +26,22 @@ enum QosLevel { AtMostOnce = 0x00, AtLeastOnce = 0x01, ExactlyOnce = 0x02 };
 
 using MsgIterator = std::vector<char>::const_iterator;
 
-class BaseMsg {
+class Header {
 protected:
   MessageType messageType;
   bool duplicate;
   QosLevel qosLevel;
   bool retain;
-  uint8_t remainingLength;
+  int remainingLength;
 
   const std::string delimiter = "  ";
 
 public:
-  BaseMsg() = default;
+  Header() = default;
 
-  BaseMsg(MessageType messageType, bool duplicate = false,
-          QosLevel qosLevel = AtMostOnce, bool retain = false,
-          int remainingLength = 0);
+  Header(MessageType messageType, bool duplicate = false,
+         QosLevel qosLevel = AtMostOnce, bool retain = false,
+         int remainingLength = 0);
 
   int deserialize(const std::vector<char>& msg);
 
@@ -49,6 +49,6 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const MessageType& rhs);
   friend std::ostream& operator<<(std::ostream& os, const QosLevel& rhs);
-  friend std::ostream& operator<<(std::ostream& os, const BaseMsg& rhs);
+  friend std::ostream& operator<<(std::ostream& os, const Header& rhs);
 };
 } // namespace mqtt

@@ -1,12 +1,11 @@
-#include "baseMsg.h"
+#include "header.h"
 
-mqtt::BaseMsg::BaseMsg(mqtt::MessageType messageType, bool duplicate,
-                       mqtt::QosLevel qosLevel, bool retain,
-                       int remainingLength)
+mqtt::Header::Header(mqtt::MessageType messageType, bool duplicate,
+                     mqtt::QosLevel qosLevel, bool retain, int remainingLength)
     : messageType(messageType), duplicate(duplicate), qosLevel(qosLevel),
       retain(retain), remainingLength(remainingLength) {}
 
-int mqtt::BaseMsg::deserialize(const std::vector<char>& msg) {
+int mqtt::Header::deserialize(const std::vector<char>& msg) {
   messageType = static_cast<MessageType>((msg[0] & 0b11110000) >> 4);
   duplicate = static_cast<bool>((msg[0] & 0b00001000) >> 3);
   qosLevel = static_cast<QosLevel>((msg[0] & 0b00000110) >> 1);
@@ -16,7 +15,7 @@ int mqtt::BaseMsg::deserialize(const std::vector<char>& msg) {
   return 1;
 }
 
-std::vector<char> mqtt::BaseMsg::serialize() {
+std::vector<char> mqtt::Header::serialize() {
   std::vector<char> msg = {
       char((messageType << 4) | (duplicate << 3) | (qosLevel << 1) | retain)};
 
@@ -96,7 +95,7 @@ std::ostream& operator<<(std::ostream& os, const mqtt::QosLevel& rhs) {
   return os;
 }
 
-std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::BaseMsg& rhs) {
+std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::Header& rhs) {
   std::string delimiter = "  ";
 
   os << "----Header----\n";
@@ -104,7 +103,7 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::BaseMsg& rhs) {
   os << "Duplicate: " << rhs.duplicate << delimiter;
   os << "QoS Level: " << rhs.qosLevel << delimiter;
   os << "Retain: " << rhs.retain << "\n";
-  os << "Remaining length: " << rhs.remainingLength << "\n";
+  os << "Remaining length: " << rhs.remainingLength;
 
   return os;
 }

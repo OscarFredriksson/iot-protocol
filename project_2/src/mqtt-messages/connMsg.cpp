@@ -1,7 +1,7 @@
 #include "connMsg.h"
 
 int mqtt::ConnMsg::deserialize(const std::vector<char>& msg) {
-  if (!BaseMsg::deserialize(msg))
+  if (!Header::deserialize(msg))
     return 0;
 
   nameLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));
@@ -37,7 +37,7 @@ int mqtt::ConnMsg::deserialize(const std::vector<char>& msg) {
 }
 
 std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::ConnMsg& rhs) {
-  os << static_cast<BaseMsg>(rhs) << "\n";
+  os << static_cast<Header>(rhs) << "\n";
 
   os << "----Connect Message----\n";
   os << "Protocol Name Length: " << rhs.nameLength << rhs.delimiter;

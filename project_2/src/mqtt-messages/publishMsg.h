@@ -2,10 +2,10 @@
 #include <string>
 #include <vector>
 
-#include "baseMsg.h"
+#include "header.h"
 
 namespace mqtt {
-class PublishMsg : public BaseMsg {
+class PublishMsg : public Header {
 protected:
   int topicNameLength;
   std::string topicName = "";

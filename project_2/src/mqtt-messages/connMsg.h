@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "baseMsg.h"
+#include "header.h"
 
 namespace mqtt {
-class ConnMsg : public BaseMsg {
+class ConnMsg : public Header {
 public:
   int remainingLength;
   int nameLength;

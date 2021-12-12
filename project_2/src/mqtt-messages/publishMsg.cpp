@@ -1,7 +1,7 @@
 #include "publishMsg.h"
 
 std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::PublishMsg& rhs) {
-  os << static_cast<mqtt::BaseMsg>(rhs) << "\n";
+  os << static_cast<mqtt::Header>(rhs) << "\n";
 
   os << "----Publish Message---\n";
   os << "Topic Name Length: " << rhs.topicNameLength << rhs.delimiter;
@@ -11,7 +11,7 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::PublishMsg& rhs) {
 }
 
 int mqtt::PublishMsg::deserialize(std::vector<char> msg) {
-  if (!BaseMsg::deserialize(msg))
+  if (!Header::deserialize(msg))
     return -1;
 
   topicNameLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));

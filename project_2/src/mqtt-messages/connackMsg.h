@@ -1,8 +1,9 @@
 #pragma once
 
-#include "baseMsg.h"
 #include <iostream>
 #include <vector>
+
+#include "header.h"
 
 namespace mqtt {
 enum ReturnCode {
@@ -13,7 +14,7 @@ enum ReturnCode {
   BadUsrNameOrPwd,
   NotAuthorized
 };
-class ConnackMsg : public BaseMsg {
+class ConnackMsg : public Header {
 private:
   ReturnCode returnCode;
 

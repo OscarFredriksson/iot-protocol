@@ -1,5 +1,5 @@
 #include "broker.h"
-#include "mqtt-messages/baseMsg.h"
+#include "mqtt-messages/header.h"
 
 mqtt::Broker::Broker(const int port) : socket(port) {}
 
@@ -36,7 +36,7 @@ int mqtt::Broker::handlePublish(const std::vector<char>& msg) {
 }
 
 int mqtt::Broker::handlePingReq(const std::vector<char>& msg) {
-  mqtt::BaseMsg pingReqMsg;
+  mqtt::Header pingReqMsg;
 
   if (!pingReqMsg.deserialize(msg)) {
     std::cerr << "Failed to deserialize Publish Message\n";
@@ -45,9 +45,28 @@ int mqtt::Broker::handlePingReq(const std::vector<char>& msg) {
 
   std::cout << pingReqMsg << "\n";
 
-  mqtt::BaseMsg pingRespMsg(mqtt::PINGRESP);
+  mqtt::Header pingRespMsg(mqtt::PINGRESP);
+
+  std::cout << pingRespMsg << "\n";
 
   socket.respond(pingRespMsg.serialize());
+
+  return 1;
+}
+
+int mqtt::Broker::handleSubscribe(const std::vector<char>& msg) { return 1; }
+
+int mqtt::Broker::handleUnsubscribe(const std::vector<char>& msg) { return 1; }
+
+int mqtt::Broker::handleDisconnect(const std::vector<char>& msg) {
+  mqtt::Header disconnectMsg;
+
+  if (!disconnectMsg.deserialize(msg)) {
+    std::cerr << "Failed to deserialize Disconnect Message\n";
+    return 0;
+  }
+
+  std::cout << disconnectMsg << "\n";
 
   return 1;
 }
@@ -85,8 +104,19 @@ int mqtt::Broker::start() {
       if (!handlePingReq(msg))
         return 0;
       break;
+    case mqtt::SUBSCRIBE:
+      if (!handleSubscribe(msg))
+        return 0;
+      break;
+    case mqtt::UNSUBSCRIBE:
+      if (!handleUnsubscribe(msg))
+        return 0;
+      break;
+    case mqtt::DISCONNECT:
+      handleDisconnect(msg);
+      return 0;
     default:
-      // std::cout << "Message type " << msgType << " not supported yet.\n";
+      std::cout << "Message type " << msgType << " not supported yet.\n";
       break;
     }
   }
