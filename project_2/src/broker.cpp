@@ -1,5 +1,4 @@
 #include "broker.h"
-#include <thread>
 
 mqtt::Broker::Broker(const int port) : port(port) {}
 
@@ -51,7 +50,9 @@ int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
 
   std::cout << subMsg << "\n";
 
+  subs_mtx.lock();
   subscribers[subMsg.getTopic()].insert(socket);
+  subs_mtx.unlock();
 
   mqtt::SubAckMsg subAckMsg(subMsg.getPacketId(), mqtt::SuccessQoS0);
 
@@ -74,6 +75,7 @@ int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
 
   std::cout << unsubMsg << "\n";
 
+  subs_mtx.lock();
   std::set<Socket*>& topicSubs = subscribers[unsubMsg.getTopic()];
 
   if (topicSubs.contains(socket)) {
@@ -81,6 +83,7 @@ int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
     if (topicSubs.empty())
       subscribers.erase(unsubMsg.getTopic());
   }
+  subs_mtx.unlock();
 
   return 1;
 }
@@ -99,9 +102,11 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
 
   std::string topic = publishMsg.getTopic();
 
+  subs_mtx.lock();
   std::set<Socket*> topicSubs = subscribers[topic];
 
   std::cout << "Subscribers: " << topicSubs.size() << "\n";
+  subs_mtx.unlock();
 
   std::vector<char> fullMsg = header.serialize();
 

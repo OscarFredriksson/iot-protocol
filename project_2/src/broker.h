@@ -1,5 +1,7 @@
 #include <memory>
+#include <mutex>
 #include <set>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -22,6 +24,7 @@ public:
 
 private:
   const int port;
+  std::mutex subs_mtx;
   std::unordered_map<std::string, std::set<Socket*>> subscribers;
 
   int handleClient(Socket* socket);
