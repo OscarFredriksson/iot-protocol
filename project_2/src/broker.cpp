@@ -50,8 +50,11 @@ int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
 
   std::cout << subMsg << "\n";
 
+  std::vector<Topic> topics = subMsg.getTopics();
+
   subs_mtx.lock();
-  subscribers[subMsg.getTopic()].insert(socket);
+  for (const auto& topic : topics)
+    subscribers[topic.value].insert(socket);
   subs_mtx.unlock();
 
   mqtt::SubAckMsg subAckMsg(subMsg.getPacketId(), mqtt::SuccessQoS0);
@@ -75,13 +78,19 @@ int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
 
   std::cout << unsubMsg << "\n";
 
-  subs_mtx.lock();
-  std::set<Socket*>& topicSubs = subscribers[unsubMsg.getTopic()];
+  auto topics = unsubMsg.getTopics();
 
-  if (topicSubs.contains(socket)) {
-    topicSubs.erase(socket);
-    if (topicSubs.empty())
-      subscribers.erase(unsubMsg.getTopic());
+  subs_mtx.lock();
+  for (const auto& topic : topics) {
+    std::set<Socket*>& topicSubs = subscribers[topic.value];
+
+    if (topicSubs.contains(socket)) {
+      topicSubs.erase(socket); // Remove socket from subscribing to the topic
+
+      // If the set of subscribers for the topic is empty, remove the topic
+      if (topicSubs.empty())
+        subscribers.erase(topic.value);
+    }
   }
   subs_mtx.unlock();
 

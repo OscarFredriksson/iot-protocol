@@ -19,6 +19,8 @@ int mqtt::ConnMsg::deserialize(const std::vector<char>& remainingBytes) {
 
   version = *msgIt++;
 
+  cleanSession = *msgIt & 0b00000010;
+
   if ((*msgIt++ & 0b00000001)) {
     std::cerr << "ERROR: Corrupt message, reserved flag is not false\n";
     return 0;

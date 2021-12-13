@@ -2,20 +2,30 @@
 
 mqtt::UnsubMsg::UnsubMsg(const Header& header) : mqtt::Header(header) {}
 
-std::string mqtt::UnsubMsg::getTopic() { return topic; }
+std::vector<mqtt::Topic> mqtt::UnsubMsg::getTopics() { return topics; }
 
 int mqtt::UnsubMsg::deserialize(const std::vector<char>& remainingBytes) {
 
   packetId = static_cast<uint16_t>((remainingBytes[0] << 8) |
                                    (remainingBytes[1] & 0x00ff));
-  topicLength =
-      static_cast<int>((remainingBytes[2] << 8) | (remainingBytes[3] & 0x00ff));
 
-  mqtt::MsgIterator msgIt = remainingBytes.begin() + 4;
+  mqtt::MsgIterator msgIt = remainingBytes.begin() + 2;
 
-  mqtt::MsgIterator topicStartIt = msgIt;
-  for (; msgIt < topicStartIt + topicLength; msgIt++) {
-    topic += *msgIt;
+  while (msgIt < remainingBytes.begin() + remainingLength) {
+    Topic topic;
+
+    topic.length = static_cast<int>((*msgIt << 8) | (*(msgIt + 1) & 0x00ff));
+    msgIt += 2;
+
+    topic.value = "";
+
+    mqtt::MsgIterator topicStartIt = msgIt;
+    for (; msgIt < topicStartIt + topic.length; msgIt++) {
+      topic.value += *msgIt;
+    }
+
+    topics.push_back(topic);
+    msgIt++;
   }
 
   return 1;
@@ -26,10 +36,11 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::UnsubMsg& rhs) {
 
   os << "----Unsubscribe Message----\n";
   os << "Packet ID: " << rhs.packetId << rhs.delimiter;
-  os << "Topic Length: " << rhs.topicLength << rhs.delimiter;
-  os << "Topic: " << rhs.topic << rhs.delimiter;
-
-  os << "\n";
+  os << "------Topics:\n";
+  for (const auto& topic : rhs.topics) {
+    os << "Topic Length: " << topic.length << rhs.delimiter;
+    os << "Topic: " << topic.value << "\n";
+  }
 
   return os;
 }

@@ -16,6 +16,8 @@ public:
   std::string protocolName = "";
   int version;
 
+  bool cleanSession;
+
   int keepAlive;
 
   int clientIdLength;
