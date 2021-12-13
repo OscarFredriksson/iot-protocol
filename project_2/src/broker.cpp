@@ -100,6 +100,13 @@ int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
 int mqtt::Broker::handlePublish(const mqtt::Header& header,
                                 const std::vector<char>& remainingBytes,
                                 Socket* socket) {
+
+  if (header.qosLevel != mqtt::AtMostOnce) {
+    std::cerr << "QoS level other than 0 is not supported yet for Publish "
+                 "messages.\n";
+    return 0;
+  }
+
   mqtt::PublishMsg publishMsg(header);
 
   if (!publishMsg.deserialize(remainingBytes)) {
@@ -121,7 +128,7 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
 
   fullMsg.insert(fullMsg.end(), remainingBytes.begin(), remainingBytes.end());
 
-  for (auto sub : topicSubs) {
+  for (const auto& sub : topicSubs) {
     sub->send(fullMsg);
   }
 
@@ -138,6 +145,7 @@ int mqtt::Broker::handleDisconnect(const mqtt::Header& header, Socket* socket) {
 }
 
 int mqtt::Broker::handleClient(Socket* socket) {
+
   while (true) {
     std::vector<char> bytes = socket->receive(2);
 
@@ -153,7 +161,7 @@ int mqtt::Broker::handleClient(Socket* socket) {
     std::vector<char> remainingBytes =
         socket->receive(header.getRemainingLength());
 
-    mqtt::MessageType msgType = header.getMessageType(); // getMessageType(msg);
+    mqtt::MessageType msgType = header.getMessageType();
 
     switch (msgType) {
     case mqtt::CONNECT:
