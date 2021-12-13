@@ -7,11 +7,14 @@
 namespace mqtt {
 class PublishMsg : public Header {
 protected:
-  int topicNameLength;
-  std::string topicName = "";
+  int topicLength;
+  std::string topic = "";
+  uint16_t packetId;
 
 public:
   int deserialize(std::vector<char> msg);
+
+  std::string getTopic();
 
   friend std::ostream& operator<<(std::ostream& os, const PublishMsg& rhs);
 };

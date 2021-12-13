@@ -16,7 +16,7 @@ public:
 
   std::vector<char> receive();
 
-  void respond(const std::vector<char>& msg);
+  void send(const std::vector<char>& msg);
 
   void close();
 

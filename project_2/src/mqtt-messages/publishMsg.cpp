@@ -4,8 +4,8 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::PublishMsg& rhs) {
   os << static_cast<mqtt::Header>(rhs) << "\n";
 
   os << "----Publish Message---\n";
-  os << "Topic Name Length: " << rhs.topicNameLength << rhs.delimiter;
-  os << "Topic Name: " << rhs.topicName << rhs.delimiter;
+  os << "Topic Length: " << rhs.topicLength << rhs.delimiter;
+  os << "Topic: " << rhs.topic << rhs.delimiter;
 
   return os;
 }
@@ -14,15 +14,19 @@ int mqtt::PublishMsg::deserialize(std::vector<char> msg) {
   if (!Header::deserialize(msg))
     return -1;
 
-  topicNameLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));
+  topicLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));
 
   MsgIterator msgIt = msg.begin() + 4;
 
-  const auto topicNameStartIt = msgIt;
+  const auto topicStartIt = msgIt;
 
-  for (; msgIt < topicNameStartIt + topicNameLength; msgIt++) {
-    topicName += *msgIt;
+  for (; msgIt < topicStartIt + topicLength; msgIt++) {
+    topic += *msgIt;
   }
+
+  packetId = static_cast<uint16_t>((*msgIt << 8) | (*(msgIt + 1) & 0x00ff));
 
   return 1;
 }
+
+std::string mqtt::PublishMsg::getTopic() { return topic; }

@@ -11,7 +11,7 @@ enum SubReturnCode {
   SuccessQoS1 = 0x01,
   SuccessQoS2 = 0x02,
   Failure = 0x80
-}
+};
 
 class SubAckMsg : public Header {
 protected:
@@ -23,7 +23,7 @@ public:
 
   std::vector<char> serialize();
 
-  friend std::ostream& operator<<(std::ostream& os, const Header& rhs);
+  friend std::ostream& operator<<(std::ostream& os, const SubAckMsg& rhs);
   friend std::ostream& operator<<(std::ostream& os, const SubReturnCode& rhs);
 };
 } // namespace mqtt

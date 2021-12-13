@@ -1,7 +1,18 @@
 #include "subAckMsg.h"
 
-mqtt::SubAckMsg::SubAckMsg(uint16_t packetId, SubReturnCode returnCode)
-    : packetId(packetId), returnCode(returnCode) {}
+mqtt::SubAckMsg::SubAckMsg(uint16_t packetId, mqtt::SubReturnCode returnCode)
+    : packetId(packetId), returnCode(returnCode), Header(mqtt::SUBACK) {}
+
+std::vector<char> mqtt::SubAckMsg::serialize() {
+  std::vector<char> msg = mqtt::Header::serialize();
+
+  msg.push_back(char(3));
+  msg.push_back(char(packetId >> 8));
+  msg.push_back(char(packetId & 0xff));
+  msg.push_back(char(returnCode));
+
+  return msg;
+}
 
 std::ostream& mqtt::operator<<(std::ostream& os,
                                const mqtt::SubReturnCode& rhs) {
@@ -31,7 +42,7 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::SubAckMsg& rhs) {
   os << static_cast<Header>(rhs) << "\n";
 
   os << "----Subscribe Ack Message----\n";
-  os << "Packet ID: " << rhs.packetId << rhs.delimiter;
-  os << "Return Code: " << rhs.returnCode << "\n";
+  os << "Packet Id: " << rhs.packetId << rhs.delimiter;
+  // os << "Return Code: " << rhs.returnCode << "\n";
   return os;
 }

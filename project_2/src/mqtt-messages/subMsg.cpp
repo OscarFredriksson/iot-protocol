@@ -4,7 +4,7 @@ uint16_t mqtt::SubMsg::getPacketId() { return packetId; }
 
 int mqtt::SubMsg::getTopicLength() { return topicLength; }
 
-std::string getTopic() { return topic; }
+std::string mqtt::SubMsg::getTopic() { return topic; }
 
 int mqtt::SubMsg::deserialize(const std::vector<char>& msg) {
   if (!Header::deserialize(msg))
