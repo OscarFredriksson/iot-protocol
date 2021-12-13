@@ -1,4 +1,5 @@
 #include "broker.h"
+#include <thread>
 
 mqtt::Broker::Broker(const int port) : port(port) {}
 
@@ -183,6 +184,7 @@ int mqtt::Broker::start() {
       return 0;
     }
 
-    handleClient(socket);
+    std::thread clientThread(&Broker::handleClient, this, socket);
+    clientThread.detach();
   }
 }
