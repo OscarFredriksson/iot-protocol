@@ -1,16 +1,10 @@
-#include "subMsg.h"
+#include "unsubMsg.h"
 
-mqtt::SubMsg::SubMsg(const mqtt::Header& header) : mqtt::Header(header) {}
+mqtt::UnsubMsg::UnsubMsg(const Header& header) : mqtt::Header(header) {}
 
-uint16_t mqtt::SubMsg::getPacketId() { return packetId; }
+std::string mqtt::UnsubMsg::getTopic() { return topic; }
 
-int mqtt::SubMsg::getTopicLength() { return topicLength; }
-
-std::string mqtt::SubMsg::getTopic() { return topic; }
-
-int mqtt::SubMsg::deserialize(const std::vector<char>& remainingBytes) {
-  // if (!Header::deserialize(msg))
-  //   return 0;
+int mqtt::UnsubMsg::deserialize(const std::vector<char>& remainingBytes) {
 
   packetId = static_cast<uint16_t>((remainingBytes[0] << 8) |
                                    (remainingBytes[1] & 0x00ff));
@@ -27,10 +21,10 @@ int mqtt::SubMsg::deserialize(const std::vector<char>& remainingBytes) {
   return 1;
 }
 
-std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::SubMsg& rhs) {
+std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::UnsubMsg& rhs) {
   os << static_cast<Header>(rhs) << "\n";
 
-  os << "----Subscribe Message----\n";
+  os << "----Unsubscribe Message----\n";
   os << "Packet ID: " << rhs.packetId << rhs.delimiter;
   os << "Topic Length: " << rhs.topicLength << rhs.delimiter;
   os << "Topic: " << rhs.topic << rhs.delimiter;

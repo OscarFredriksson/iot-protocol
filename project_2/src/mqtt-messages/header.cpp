@@ -1,5 +1,10 @@
 #include "header.h"
 
+mqtt::Header::Header(const Header& header)
+    : messageType(header.messageType), duplicate(header.duplicate),
+      qosLevel(header.qosLevel), retain(header.retain),
+      remainingLength(header.remainingLength) {}
+
 mqtt::Header::Header(mqtt::MessageType messageType, bool duplicate,
                      mqtt::QosLevel qosLevel, bool retain, int remainingLength)
     : messageType(messageType), duplicate(duplicate), qosLevel(qosLevel),
@@ -15,11 +20,16 @@ int mqtt::Header::deserialize(const std::vector<char>& msg) {
   return 1;
 }
 
-std::vector<char> mqtt::Header::serialize() {
-  std::vector<char> msg = {
-      char((messageType << 4) | (duplicate << 3) | (qosLevel << 1) | retain)};
+mqtt::MessageType mqtt::Header::getMessageType() { return messageType; }
 
-  return msg;
+int mqtt::Header::getRemainingLength() { return remainingLength; }
+
+std::vector<char> mqtt::Header::serialize() const {
+  std::vector<char> msg = {
+      char((messageType << 4) | (duplicate << 3) | (qosLevel << 1) | retain),
+      char(remainingLength)};
+
+    return msg;
 }
 
 std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::MessageType& rhs) {

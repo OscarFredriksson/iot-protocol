@@ -9,6 +9,8 @@
 namespace mqtt {
 class ConnMsg : public Header {
 public:
+  ConnMsg(const Header& header);
+
   int remainingLength;
   int nameLength;
   std::string protocolName = "";
@@ -19,7 +21,7 @@ public:
   int clientIdLength;
   std::string clientId = "";
 
-  int deserialize(const std::vector<char>& msg);
+  int deserialize(const std::vector<char>& remainingBytes);
 
   friend std::ostream& operator<<(std::ostream& os, const ConnMsg& rhs);
 };

@@ -32,20 +32,26 @@ protected:
   bool duplicate;
   QosLevel qosLevel;
   bool retain;
-  int remainingLength;
+  int remainingLength = 0;
 
   const std::string delimiter = "  ";
 
 public:
   Header() = default;
 
+  Header(const Header& header);
+
   Header(MessageType messageType, bool duplicate = false,
          QosLevel qosLevel = AtMostOnce, bool retain = false,
          int remainingLength = 0);
 
+  MessageType getMessageType();
+
+  int getRemainingLength();
+
   int deserialize(const std::vector<char>& msg);
 
-  std::vector<char> serialize();
+  std::vector<char> serialize() const;
 
   friend std::ostream& operator<<(std::ostream& os, const MessageType& rhs);
   friend std::ostream& operator<<(std::ostream& os, const QosLevel& rhs);

@@ -1,12 +1,15 @@
 #include "connMsg.h"
 
-int mqtt::ConnMsg::deserialize(const std::vector<char>& msg) {
-  if (!Header::deserialize(msg))
-    return 0;
+mqtt::ConnMsg::ConnMsg(const Header& header) : mqtt::Header(header) {}
 
-  nameLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));
+int mqtt::ConnMsg::deserialize(const std::vector<char>& remainingBytes) {
+  // if (!Header::deserialize(msg))
+  //   return 0;
 
-  MsgIterator msgIt = msg.begin() + 4;
+  nameLength =
+      static_cast<int>((remainingBytes[0] << 8) | (remainingBytes[1] & 0x00ff));
+
+  MsgIterator msgIt = remainingBytes.begin() + 2;
 
   const auto protocolNameStartIt = msgIt;
 

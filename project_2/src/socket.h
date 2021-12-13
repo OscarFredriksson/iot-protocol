@@ -14,6 +14,8 @@ public:
 
   int connect();
 
+  std::vector<char> receive(int byteCount);
+
   std::vector<char> receive();
 
   void send(const std::vector<char>& msg);

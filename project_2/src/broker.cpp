@@ -2,10 +2,12 @@
 
 mqtt::Broker::Broker(const int port) : port(port) {}
 
-int mqtt::Broker::handleConnect(const std::vector<char>& msg, Socket* socket) {
-  mqtt::ConnMsg connMsg;
+int mqtt::Broker::handleConnect(const mqtt::Header& header,
+                                const std::vector<char>& remainingBytes,
+                                Socket* socket) {
+  mqtt::ConnMsg connMsg(header);
 
-  if (!connMsg.deserialize(msg)) {
+  if (!connMsg.deserialize(remainingBytes)) {
     std::cerr << "Failed to deserialize Connection Message\n";
     return 0;
   }
@@ -21,33 +23,27 @@ int mqtt::Broker::handleConnect(const std::vector<char>& msg, Socket* socket) {
   return 1;
 }
 
-int mqtt::Broker::handlePingReq(const std::vector<char>& msg, Socket* socket) {
-  mqtt::Header pingReqMsg;
+int mqtt::Broker::handlePingReq(const mqtt::Header& header, Socket* socket) {
 
-  if (!pingReqMsg.deserialize(msg)) {
-    std::cerr << "Failed to deserialize Publish Message\n";
-    return 0;
-  }
-
-  std::cout << pingReqMsg << "\n";
+  std::cout << header << "\n";
 
   mqtt::Header pingRespMsg(mqtt::PINGRESP);
 
   std::cout << pingRespMsg << "\n";
 
   std::vector<char> serializedMsg = pingRespMsg.serialize();
-  serializedMsg.push_back(char(0x00));
 
   socket->send(serializedMsg);
 
   return 1;
 }
 
-int mqtt::Broker::handleSubscribe(const std::vector<char>& msg,
+int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
+                                  const std::vector<char>& remainingBytes,
                                   Socket* socket) {
-  mqtt::SubMsg subMsg;
+  mqtt::SubMsg subMsg(header);
 
-  if (!subMsg.deserialize(msg)) {
+  if (!subMsg.deserialize(remainingBytes)) {
     std::cerr << "Failed to deserialize Subscribe Message\n";
     return 0;
   }
@@ -65,15 +61,35 @@ int mqtt::Broker::handleSubscribe(const std::vector<char>& msg,
   return 1;
 }
 
-int mqtt::Broker::handleUnsubscribe(const std::vector<char>& msg,
+int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
+                                    const std::vector<char>& remainingBytes,
                                     Socket* socket) {
+  mqtt::UnsubMsg unsubMsg(header);
+
+  if (!unsubMsg.deserialize(remainingBytes)) {
+    std::cerr << "Failed to deserialize Unsubscribe Message\n";
+    return 0;
+  }
+
+  std::cout << unsubMsg << "\n";
+
+  std::set<Socket*>& topicSubs = subscribers[unsubMsg.getTopic()];
+
+  if (topicSubs.contains(socket)) {
+    topicSubs.erase(socket);
+    if (topicSubs.empty())
+      subscribers.erase(unsubMsg.getTopic());
+  }
+
   return 1;
 }
 
-int mqtt::Broker::handlePublish(const std::vector<char>& msg, Socket* socket) {
-  mqtt::PublishMsg publishMsg;
+int mqtt::Broker::handlePublish(const mqtt::Header& header,
+                                const std::vector<char>& remainingBytes,
+                                Socket* socket) {
+  mqtt::PublishMsg publishMsg(header);
 
-  if (!publishMsg.deserialize(msg)) {
+  if (!publishMsg.deserialize(remainingBytes)) {
     std::cerr << "Failed to deserialize Publish Message\n";
     return 0;
   }
@@ -86,69 +102,72 @@ int mqtt::Broker::handlePublish(const std::vector<char>& msg, Socket* socket) {
 
   std::cout << "Subscribers: " << topicSubs.size() << "\n";
 
+  std::vector<char> fullMsg = header.serialize();
+
+  fullMsg.insert(fullMsg.end(), remainingBytes.begin(), remainingBytes.end());
+
   for (auto sub : topicSubs) {
-    sub->send(msg);
+    sub->send(fullMsg);
   }
 
   return 1;
 }
 
-int mqtt::Broker::handleDisconnect(const std::vector<char>& msg,
-                                   Socket* socket) {
-  mqtt::Header disconnectMsg;
+int mqtt::Broker::handleDisconnect(const mqtt::Header& header, Socket* socket) {
 
-  if (!disconnectMsg.deserialize(msg)) {
-    std::cerr << "Failed to deserialize Disconnect Message\n";
-    return 0;
-  }
-
-  std::cout << disconnectMsg << "\n";
+  std::cout << header << "\n";
 
   socket->close();
 
   return 1;
 }
 
-mqtt::MessageType mqtt::Broker::getMessageType(const std::vector<char>& msg) {
-
-  return static_cast<mqtt::MessageType>((msg[0] & 0b11110000) >> 4);
-}
-
 int mqtt::Broker::handleClient(Socket* socket) {
   while (true) {
-    std::vector<char> msg = socket->receive();
+    std::vector<char> bytes = socket->receive(2);
 
-    if (msg.empty())
+    if (bytes.empty())
       return 0;
 
-    mqtt::MessageType msgType = getMessageType(msg);
+    mqtt::Header header;
+    if (!header.deserialize(bytes)) {
+      std::cerr << "Failed to deserialize Disconnect Message\n";
+      continue;
+    }
+
+    std::vector<char> remainingBytes =
+        socket->receive(header.getRemainingLength());
+
+    mqtt::MessageType msgType = header.getMessageType(); // getMessageType(msg);
 
     switch (msgType) {
     case mqtt::CONNECT:
-      if (!handleConnect(msg, socket))
+      if (!handleConnect(header, remainingBytes, socket))
         std::cerr << "Failed to handle connect.\n";
       break;
     case mqtt::PUBLISH:
-      if (!handlePublish(msg, socket))
+      if (!handlePublish(header, remainingBytes, socket))
         std::cerr << "Failed to handle publish.\n";
       break;
     case mqtt::PINGREQ:
-      if (!handlePingReq(msg, socket))
+      if (!handlePingReq(header, socket))
         std::cerr << "Failed to handle ping request.\n";
       break;
     case mqtt::SUBSCRIBE:
-      if (!handleSubscribe(msg, socket))
+      if (!handleSubscribe(header, remainingBytes, socket))
         std::cerr << "Failed to handle subscribe.\n";
       break;
     case mqtt::UNSUBSCRIBE:
-      if (!handleUnsubscribe(msg, socket))
+      if (!handleUnsubscribe(header, remainingBytes, socket))
         std::cerr << "Failed to handle unsubscribe.\n";
       break;
     case mqtt::DISCONNECT:
-      handleDisconnect(msg, socket);
+      handleDisconnect(header, socket);
+      delete socket;
       return 1;
     default:
       std::cout << "Message type " << msgType << " not supported yet.\n";
+      return 1;
       break;
     }
   }

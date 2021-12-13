@@ -12,7 +12,9 @@ protected:
   uint16_t packetId;
 
 public:
-  int deserialize(std::vector<char> msg);
+  PublishMsg(const Header& header);
+
+  int deserialize(std::vector<char> remainingBytes);
 
   std::string getTopic();
 

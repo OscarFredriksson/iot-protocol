@@ -1,5 +1,7 @@
 #include "publishMsg.h"
 
+mqtt::PublishMsg::PublishMsg(const Header& header) : mqtt::Header(header) {}
+
 std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::PublishMsg& rhs) {
   os << static_cast<mqtt::Header>(rhs) << "\n";
 
@@ -10,13 +12,11 @@ std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::PublishMsg& rhs) {
   return os;
 }
 
-int mqtt::PublishMsg::deserialize(std::vector<char> msg) {
-  if (!Header::deserialize(msg))
-    return -1;
+int mqtt::PublishMsg::deserialize(std::vector<char> remainingBytes) {
+  topicLength =
+      static_cast<int>((remainingBytes[0] << 8) | (remainingBytes[1] & 0x00ff));
 
-  topicLength = static_cast<int>((msg[2] << 8) | (msg[3] & 0x00ff));
-
-  MsgIterator msgIt = msg.begin() + 4;
+  MsgIterator msgIt = remainingBytes.begin() + 2;
 
   const auto topicStartIt = msgIt;
 

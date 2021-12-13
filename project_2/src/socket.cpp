@@ -49,14 +49,13 @@ int Socket::connect() {
   return 1;
 }
 
-std::vector<char> Socket::receive() {
-  int msgSize = 1024;
-  char msg[msgSize];
+std::vector<char> Socket::receive(int byteCount) {
+  char msg[byteCount];
 
   // Receive a response into a fixed size style char array
-  int byteCount = read(newsockfd, msg, msgSize - 1);
+  int readByteCount = read(newsockfd, msg, byteCount);
 
-  if (byteCount < 0) {
+  if (readByteCount < 0) {
     std::cerr << "Failed to read bytes, error: " << strerror(errno) << "\n";
     return std::vector<char>();
   }
@@ -64,6 +63,12 @@ std::vector<char> Socket::receive() {
   // Convert the char array to a vector that is as long as the number of read
   // bytes
   return std::vector<char>(msg, msg + byteCount);
+}
+
+std::vector<char> Socket::receive() {
+  int msgSize = 1024;
+
+  return receive(msgSize);
 }
 
 void Socket::send(const std::vector<char>& msg) {
