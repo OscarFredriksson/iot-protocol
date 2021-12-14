@@ -20,16 +20,18 @@ int mqtt::Header::deserialize(const std::vector<char>& msg) {
   return 1;
 }
 
-mqtt::MessageType mqtt::Header::getMessageType() { return messageType; }
+mqtt::MessageType mqtt::Header::getMessageType() const { return messageType; }
 
-int mqtt::Header::getRemainingLength() { return remainingLength; }
+int mqtt::Header::getRemainingLength() const { return remainingLength; }
+
+mqtt::QosLevel mqtt::Header::getQosLevel() const { return qosLevel; }
 
 std::vector<char> mqtt::Header::serialize() const {
   std::vector<char> msg = {
       char((messageType << 4) | (duplicate << 3) | (qosLevel << 1) | retain),
       char(remainingLength)};
 
-    return msg;
+  return msg;
 }
 
 std::ostream& mqtt::operator<<(std::ostream& os, const mqtt::MessageType& rhs) {

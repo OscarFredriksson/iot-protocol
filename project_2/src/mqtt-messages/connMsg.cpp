@@ -3,8 +3,6 @@
 mqtt::ConnMsg::ConnMsg(const Header& header) : mqtt::Header(header) {}
 
 int mqtt::ConnMsg::deserialize(const std::vector<char>& remainingBytes) {
-  // if (!Header::deserialize(msg))
-  //   return 0;
 
   nameLength =
       static_cast<int>((remainingBytes[0] << 8) | (remainingBytes[1] & 0x00ff));

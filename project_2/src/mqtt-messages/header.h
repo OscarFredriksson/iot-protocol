@@ -45,9 +45,11 @@ public:
          QosLevel qosLevel = AtMostOnce, bool retain = false,
          int remainingLength = 0);
 
-  MessageType getMessageType();
+  MessageType getMessageType() const;
 
-  int getRemainingLength();
+  int getRemainingLength() const;
+
+  QosLevel getQosLevel() const;
 
   int deserialize(const std::vector<char>& msg);
 

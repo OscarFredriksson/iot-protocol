@@ -41,6 +41,7 @@ int mqtt::Broker::handlePingReq(const mqtt::Header& header, Socket* socket) {
 int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
                                   const std::vector<char>& remainingBytes,
                                   Socket* socket) {
+
   mqtt::SubMsg subMsg(header);
 
   if (!subMsg.deserialize(remainingBytes)) {
@@ -69,6 +70,7 @@ int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
 int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
                                     const std::vector<char>& remainingBytes,
                                     Socket* socket) {
+
   mqtt::UnsubMsg unsubMsg(header);
 
   if (!unsubMsg.deserialize(remainingBytes)) {
@@ -101,7 +103,7 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
                                 const std::vector<char>& remainingBytes,
                                 Socket* socket) {
 
-  if (header.qosLevel != mqtt::AtMostOnce) {
+  if (header.getQosLevel() != mqtt::AtMostOnce) {
     std::cerr << "QoS level other than 0 is not supported yet for Publish "
                  "messages.\n";
     return 0;
@@ -120,6 +122,8 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
 
   subs_mtx.lock();
   std::set<Socket*> topicSubs = subscribers[topic];
+  topicSubs.merge(subscribers["#"]); // Also publish message to subscribers of
+                                     // the wildcard #
 
   std::cout << "Subscribers: " << topicSubs.size() << "\n";
   subs_mtx.unlock();
