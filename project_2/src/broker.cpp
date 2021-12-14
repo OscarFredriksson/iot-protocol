@@ -64,6 +64,13 @@ int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
 
   socket->send(subAckMsg.serialize());
 
+  subs_mtx.lock();
+  for (const auto& topic : topics) {
+    if (last_publish.count(topic.value))
+      socket->send(last_publish[topic.value]);
+  }
+  subs_mtx.unlock();
+
   return 1;
 }
 
@@ -84,13 +91,14 @@ int mqtt::Broker::handleUnsubscribe(const mqtt::Header& header,
 
   subs_mtx.lock();
   for (const auto& topic : topics) {
-    std::set<Socket*>& topicSubs = subscribers[topic.value];
+    // std::set<Socket*>& topicSubs = subscribers[topic.value];
 
-    if (topicSubs.contains(socket)) {
-      topicSubs.erase(socket); // Remove socket from subscribing to the topic
+    if (subscribers[topic.value].contains(socket)) {
+      subscribers[topic.value].erase(
+          socket); // Remove socket from subscribing to the topic
 
       // If the set of subscribers for the topic is empty, remove the topic
-      if (topicSubs.empty())
+      if (subscribers[topic.value].empty())
         subscribers.erase(topic.value);
     }
   }
@@ -132,6 +140,10 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
 
   fullMsg.insert(fullMsg.end(), remainingBytes.begin(), remainingBytes.end());
 
+  if (header.getRetain()) {
+    last_publish[publishMsg.getTopic()] = fullMsg;
+  }
+
   for (const auto& sub : topicSubs) {
     sub->send(fullMsg);
   }
@@ -146,6 +158,20 @@ int mqtt::Broker::handleDisconnect(const mqtt::Header& header, Socket* socket) {
   socket->close();
 
   return 1;
+}
+
+void mqtt::Broker::removeSubs(Socket* socket) {
+
+  for (auto& [key, sockets] : subscribers) {
+
+    if (sockets.contains(socket)) {
+      sockets.erase(socket); // Remove socket from subscribing to the topic
+
+      // If the set of subscribers for the topic is empty, remove the topic
+      if (subscribers[key].empty())
+        subscribers.erase(key);
+    }
+  }
 }
 
 int mqtt::Broker::handleClient(Socket* socket) {
@@ -193,9 +219,10 @@ int mqtt::Broker::handleClient(Socket* socket) {
       delete socket;
       return 1;
     default:
-      std::cout << "Message type " << msgType << " not supported yet.\n";
-      return 1;
-      break;
+      // std::cout << "Message type " << msgType << " not supported yet.\n";
+      removeSubs(socket);
+      delete socket;
+      return 0;
     }
   }
 }

@@ -20,6 +20,8 @@ int mqtt::Header::deserialize(const std::vector<char>& msg) {
   return 1;
 }
 
+bool mqtt::Header::getRetain() const { return retain; }
+
 mqtt::MessageType mqtt::Header::getMessageType() const { return messageType; }
 
 int mqtt::Header::getRemainingLength() const { return remainingLength; }

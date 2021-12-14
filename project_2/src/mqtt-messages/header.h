@@ -45,6 +45,8 @@ public:
          QosLevel qosLevel = AtMostOnce, bool retain = false,
          int remainingLength = 0);
 
+  bool getRetain() const;
+
   MessageType getMessageType() const;
 
   int getRemainingLength() const;

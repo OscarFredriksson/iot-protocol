@@ -26,9 +26,9 @@ private:
   const int port;
   std::mutex subs_mtx;
   std::unordered_map<std::string, std::set<Socket*>> subscribers;
+  std::unordered_map<std::string, std::vector<char>> last_publish;
 
   int handleClient(Socket* socket);
-
   int handleConnect(const mqtt::Header& header,
                     const std::vector<char>& remainingBytes, Socket* socket);
   int handlePingReq(const mqtt::Header& header, Socket* socket);
@@ -40,5 +40,7 @@ private:
   int handlePublish(const mqtt::Header& header,
                     const std::vector<char>& remainingBytes, Socket* socket);
   int handleDisconnect(const mqtt::Header& header, Socket* socket);
+
+  void removeSubs(Socket* socket);
 };
 } // namespace mqtt
