@@ -1,5 +1,5 @@
 SRC := $(wildcard src/*.cpp)
-FLAGS := -std=c++20 -o -pthread
+FLAGS := -std=c++20 -o
 
 
 main: $(SRC)
