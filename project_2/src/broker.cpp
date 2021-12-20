@@ -219,7 +219,7 @@ int mqtt::Broker::handleClient(Socket* socket) {
       delete socket;
       return 1;
     default:
-      // std::cout << "Message type " << msgType << " not supported yet.\n";
+      std::cout << "Message type " << msgType << " not supported yet.\n";
       removeSubs(socket);
       delete socket;
       return 0;
