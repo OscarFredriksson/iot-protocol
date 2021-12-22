@@ -130,8 +130,10 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
 
   subs_mtx.lock();
   std::set<Socket*> topicSubs = subscribers[topic];
-  topicSubs.merge(subscribers["#"]); // Also publish message to subscribers of
-                                     // the wildcard #
+  std::set<Socket*> wildcardSubs = subscribers["#"];
+
+  // Also publish message to subscribers of the wildcard '#'
+  topicSubs.merge(wildcardSubs);
 
   std::cout << "Subscribers: " << topicSubs.size() << "\n";
   subs_mtx.unlock();
