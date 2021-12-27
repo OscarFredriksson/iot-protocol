@@ -11,7 +11,11 @@ void coap::Client::send(CoapMessage request) {
 
 CoapMessage coap::Client::getResponse() {
   CoapMessage response;
-  response.deserialize(socket.receive());
+
+  std::vector<char> raw_response = socket.receive();
+
+  if (!raw_response.empty())
+    response.deserialize(raw_response);
 
   return response;
 }
