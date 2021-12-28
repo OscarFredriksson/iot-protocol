@@ -259,7 +259,7 @@ void CoapMessage::setOptionUriPath(const std::string& path) {
 
   for (int i = 0; i < path.size(); i++) {
     Option option;
-    option.delta = UriPath;
+    option.delta = static_cast<CoapOptionDelta>(UriPath - previousOptionDelta);
 
     for (; i < path.size() && path[i] != '/'; i++)
       option.value.push_back(path[i]);
@@ -267,6 +267,8 @@ void CoapMessage::setOptionUriPath(const std::string& path) {
     option.length = option.value.size();
 
     // option.value.push_back('/');
+
+    previousOptionDelta = option.delta;
 
     options.push_back(option);
   }

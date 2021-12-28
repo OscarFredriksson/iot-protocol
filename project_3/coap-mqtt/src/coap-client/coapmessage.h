@@ -90,6 +90,8 @@ private:
   CoapCode code = CoapCode::EMPTY;
   uint16_t messageId = 0;
 
+  int previousOptionDelta = 0;
+
   struct Option {
     CoapOptionDelta delta;
     uint8_t length : 4;

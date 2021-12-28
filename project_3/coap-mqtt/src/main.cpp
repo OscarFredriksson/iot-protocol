@@ -193,7 +193,7 @@ int main() {
   // std::string coapUriPath = topic.substr(topic.find("/") + 1,
   // topic.length());
 
-  std::string coapCodeStr = "GET";
+  std::string coapCodeStr = "PUT";
 
   CoapCode coapCode;
 
@@ -211,7 +211,7 @@ int main() {
   std::string coapUriPath = "15001/65536";
 
   request.setOptionUriPath(coapUriPath);
-  // request.setPayload("{ \"3311\": [{ \"5851\": 150 }] }");
+  request.setPayload("{ \"3311\": [{ \"5851\": 10 }] }");
 
   std::cout << request << "\n";
 
