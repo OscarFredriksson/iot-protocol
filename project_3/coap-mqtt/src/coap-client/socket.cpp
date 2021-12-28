@@ -17,9 +17,7 @@ inline unsigned int Socket::My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
   (void)hint;
   (void)key_max_len;
 
-  strncpy(identity, "oscar", id_max_len);
-
-  // std::string psk_str = "deO6gR4gRsbZOavi";
+  strncpy(identity, CLIENT_IDENTITY, id_max_len);
 
   for (int i = 0; i < PSK_STR.length(); i++) {
     key[i] = PSK_STR[i];
