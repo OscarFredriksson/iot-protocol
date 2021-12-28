@@ -1,5 +1,6 @@
 #include "coapmessage.h"
 #include <iomanip>
+#include <sstream>
 
 CoapMessage::CoapMessage(CoapCode code, uint16_t messageId)
     : code(code), messageId(messageId) {}
@@ -243,7 +244,7 @@ std::ostream& operator<<(std::ostream& os, const CoapMessage& rhs) {
   os << "Type: " << rhs.type << delimiter;
   os << "Token Length: " << int(rhs.tokenLength) << delimiter;
   os << "Code: " << rhs.code << delimiter;
-  os << "Message Id: " << rhs.messageId;
+  os << "Message Id: " << std::dec << rhs.messageId;
 
   for (int i = 0; i < rhs.options.size(); i++) {
     const auto& option = rhs.options[i];
@@ -266,8 +267,6 @@ void CoapMessage::setOptionUriPath(const std::string& path) {
 
     option.length = option.value.size();
 
-    // option.value.push_back('/');
-
     previousOptionDelta = option.delta;
 
     options.push_back(option);
@@ -285,7 +284,8 @@ int CoapMessage::deserialize(const std::vector<char>& msg) {
   type = static_cast<CoapType>((msg[byteIt] & 0b00110000) >> 4);
   tokenLength = msg[byteIt++] & 0x0f;
   code = static_cast<CoapCode>(msg[byteIt++]);
-  messageId = (msg[byteIt] << 8) | (msg[byteIt + 1] & 0x00ff);
+
+  messageId = static_cast<uint16_t>((msg[byteIt] << 8) | msg[byteIt + 1]);
 
   byteIt +=
       2 +
@@ -293,8 +293,7 @@ int CoapMessage::deserialize(const std::vector<char>& msg) {
 
   int prevDelta = 0;
 
-  for (; byteIt != msg.size() - 1; byteIt++) {
-
+  for (; byteIt <= msg.size() - 1; byteIt++) {
     // Found payload, read payload and then we are done
     if ((msg[byteIt] & 0xff) == 0xff) {
       payload = "";

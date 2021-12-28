@@ -211,7 +211,7 @@ int main() {
   std::string coapUriPath = "15001/65536";
 
   request.setOptionUriPath(coapUriPath);
-  request.setPayload("{ \"3311\": [{ \"5851\": 10 }] }");
+  request.setPayload("{ \"3311\": [{ \"5851\": 200 }] }");
 
   std::cout << request << "\n";
 

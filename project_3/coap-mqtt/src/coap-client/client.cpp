@@ -14,7 +14,9 @@ CoapMessage coap::Client::getResponse() {
 
   std::vector<char> raw_response = socket.receive();
 
-  if (!raw_response.empty())
+  if (raw_response.empty())
+    std::cerr << "response was empty!\n";
+  else
     response.deserialize(raw_response);
 
   return response;
