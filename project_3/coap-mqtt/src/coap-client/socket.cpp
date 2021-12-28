@@ -1,4 +1,5 @@
 #include "socket.h"
+#include "constants.h"
 #include <arpa/inet.h>
 #include <iostream>
 #include <stdio.h>
@@ -7,36 +8,22 @@
 Socket::Socket(const std::string& hostname, const int port)
     : hostname(hostname), port(port) {}
 
-static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
-                                            char* identity,
-                                            unsigned int id_max_len,
-                                            unsigned char* key,
-                                            unsigned int key_max_len) {
+inline unsigned int Socket::My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
+                                             char* identity,
+                                             unsigned int id_max_len,
+                                             unsigned char* key,
+                                             unsigned int key_max_len) {
   (void)ssl;
   (void)hint;
   (void)key_max_len;
 
-  /* identity is OpenSSL testing default for openssl s_client, keep same*/
   strncpy(identity, "oscar", id_max_len);
 
-  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
-  // 64 65 4f 36 67 52 34 67 52 73 62 5a 4f 61 76 69
-  key[0] = 0x64;
-  key[1] = 0x65;
-  key[2] = 0x4f;
-  key[3] = 0x36;
-  key[4] = 0x67;
-  key[5] = 0x52;
-  key[6] = 0x34;
-  key[7] = 0x67;
-  key[8] = 0x52;
-  key[9] = 0x73;
-  key[10] = 0x62;
-  key[11] = 0x5a;
-  key[12] = 0x4f;
-  key[13] = 0x61;
-  key[14] = 0x76;
-  key[15] = 0x69;
+  // std::string psk_str = "deO6gR4gRsbZOavi";
+
+  for (int i = 0; i < PSK_STR.length(); i++) {
+    key[i] = PSK_STR[i];
+  }
 
   return 16;
 }

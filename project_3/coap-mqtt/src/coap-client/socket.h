@@ -16,6 +16,8 @@
 
 class Socket {
 public:
+  const static std::string psk_str;
+
   const std::string hostname;
   const int port;
 
@@ -32,6 +34,12 @@ public:
   void close();
 
 private:
+  static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
+                                              char* identity,
+                                              unsigned int id_max_len,
+                                              unsigned char* key,
+                                              unsigned int key_max_len);
+
   int sockfd;
 
   WOLFSSL* ssl = NULL;
