@@ -1,9 +1,9 @@
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Appearance, StyleSheet, Text, View} from 'react-native';
 import {IMqttClient} from 'sp-react-native-mqtt';
 import Dimmer from '../parts/Dimmer';
 import OnOffButton from '../parts/OnOffButton';
-import WarmthPicker from '../parts/WarmthPicker';
+import WarmthPicker, {getRgbFromWarmth, warmth} from '../parts/WarmthPicker';
 
 interface LampControllerProps {
   mqttClient: IMqttClient;
@@ -16,22 +16,22 @@ export default function LampController(props: LampControllerProps) {
   const [isOn, setIsOn] = useState(true);
   const [dimValue, setDimValue] = useState<number>(50);
 
+  const dimSpeed = 5;
+
   const mqttSendToggle = useCallback(() => {
     const payload = {
       '5850': isOn ? 0 : 1,
     };
-    props.mqttClient.publish('lamp1', JSON.stringify(payload), 0, false);
+    props.mqttClient.publish(props.lampId, JSON.stringify(payload), 0, false);
     setIsOn(!isOn);
 
     if (isOn && dimValue === 0) {
       setDimValue(50);
     }
-  }, [isOn, props.mqttClient, dimValue]);
+  }, [isOn, props.mqttClient, props.lampId, dimValue]);
 
   const mqttSendDim = useCallback(
     (value: number) => {
-      const dimSpeed = 5;
-
       const payload = {
         '5851': value,
         '5712': dimSpeed,
@@ -42,6 +42,18 @@ export default function LampController(props: LampControllerProps) {
     [props.mqttClient, props.lampId],
   );
 
+  const mqttSendWarmth = useCallback(
+    (value: warmth) => {
+      const payload = {
+        '5706': getRgbFromWarmth(value),
+        '5712': dimSpeed,
+      };
+
+      props.mqttClient.publish(props.lampId, JSON.stringify(payload), 0, false);
+    },
+    [props.lampId, props.mqttClient],
+  );
+
   return (
     <View style={{...props.style, ...styles.container}}>
       <Text style={styles.label}>{props.title}</Text>
@@ -50,7 +62,7 @@ export default function LampController(props: LampControllerProps) {
         <WarmthPicker
           style={styles.warmthPicker}
           initialValue="warm"
-          onSelect={() => {}}
+          onSelect={(value: warmth) => mqttSendWarmth(value)}
         />
       </View>
       <Dimmer
@@ -85,6 +97,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
+    color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
     width: '100%',
     textAlign: 'left',
     fontSize: 20,

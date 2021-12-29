@@ -8,10 +8,10 @@ export type warmth = 'white' | 'warm' | 'glow';
 
 export function getRgbFromWarmth(warmth: warmth): string {
   return warmth === 'white'
-    ? '#f5faf6'
+    ? 'f5faf6'
     : warmth === 'warm'
-    ? '#f1e0b5'
-    : '#efd275';
+    ? 'f1e0b5'
+    : 'efd275';
 }
 
 interface WarmthOptionProps {
@@ -25,13 +25,21 @@ function WarmthOption(props: WarmthOptionProps) {
     <TouchableOpacity onPress={() => props.onPress(props.warmth)}>
       <View
         style={[
-          styles.warmthOption,
+          styles.outline,
           props.current
             ? styles.warmthOptionSelected
             : styles.warmthOptionUnselected,
-          {backgroundColor: getRgbFromWarmth(props.warmth)},
-        ]}
-      />
+        ]}>
+        <View
+          style={[
+            styles.warmthOption,
+            // props.current
+            //   ? styles.warmthOptionSelected
+            //   : styles.warmthOptionUnselected,
+            {backgroundColor: '#' + getRgbFromWarmth(props.warmth)},
+          ]}
+        />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -45,6 +53,11 @@ interface WarmthPickerProps {
 export default function WarmthPicker(props: WarmthPickerProps) {
   const [currentWarmth, setCurrentWarmth] = useState<warmth>('glow');
 
+  const warmthChangeHandler = (value: warmth) => {
+    setCurrentWarmth(value);
+    props.onSelect(value);
+  };
+
   return (
     <Card style={{...props.style, ...styles.card}}>
       <LabelText>Warmth</LabelText>
@@ -52,23 +65,17 @@ export default function WarmthPicker(props: WarmthPickerProps) {
         <WarmthOption
           current={currentWarmth === 'glow'}
           warmth="glow"
-          onPress={(warmth: warmth) => {
-            setCurrentWarmth(warmth);
-          }}
+          onPress={warmthChangeHandler}
         />
         <WarmthOption
           current={currentWarmth === 'warm'}
           warmth="warm"
-          onPress={(warmth: warmth) => {
-            setCurrentWarmth(warmth);
-          }}
+          onPress={warmthChangeHandler}
         />
         <WarmthOption
           current={currentWarmth === 'white'}
           warmth="white"
-          onPress={(warmth: warmth) => {
-            setCurrentWarmth(warmth);
-          }}
+          onPress={warmthChangeHandler}
         />
       </View>
     </Card>
@@ -77,8 +84,9 @@ export default function WarmthPicker(props: WarmthPickerProps) {
 
 const styles = StyleSheet.create({
   card: {
-    height: 90,
+    height: 100,
     paddingHorizontal: 20,
+    paddingBottom: 5,
   },
   row: {
     width: '100%',
@@ -87,16 +95,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   warmthOption: {
-    height: 40,
-    width: 40,
-    borderRadius: 20,
+    height: 32,
+    width: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.inactive,
+  },
+
+  outline: {
+    height: 42,
+    width: 42,
+    borderRadius: 21,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
   },
   warmthOptionSelected: {
-    borderWidth: 2,
+    // borderWidth: 2,
     borderColor: Colors.primary,
   },
   warmthOptionUnselected: {
-    borderWidth: 1,
-    borderColor: Colors.inactive,
+    // borderWidth: 1,
+    borderColor: 'transparent',
   },
 });

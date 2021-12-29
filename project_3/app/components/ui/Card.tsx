@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Appearance, StyleSheet, View} from 'react-native';
 
 interface CardProps {
   style?: object;
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 8,
     elevation: 5,
-    backgroundColor: 'white',
+    backgroundColor: Appearance.getColorScheme() === 'dark' ? 'black' : 'white',
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',

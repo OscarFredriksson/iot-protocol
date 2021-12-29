@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Appearance,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import MQTT, {IMqttClient} from 'sp-react-native-mqtt';
 import LampController from '../components/dashboard/LampController';
 import Colors from '../constants/Colors';
@@ -14,13 +20,17 @@ export function DashboardScreen() {
       clientId: 'light-controller-app',
     }).then((client: any) => {
       setMqttClient(client);
+
       client.on('closed', () => {
         setConnected(false);
+        setTimeout(() => client.connect(), 5000);
         console.log('mqtt.event.closed');
       });
 
       client.on('error', (msg: string) => {
+        setConnected(false);
         console.log('mqtt.event.error', msg);
+        setTimeout(() => client.connect(), 5000);
       });
 
       client.on('message', (msg: string) => {
@@ -29,6 +39,7 @@ export function DashboardScreen() {
 
       client.on('connect', function () {
         setConnected(true);
+
         console.log('connected!');
       });
       client.connect();
@@ -39,7 +50,7 @@ export function DashboardScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.connectingText}>Connecting to broker...</Text>
+        <Text style={styles.connectingText}>Connecting...</Text>
       </View>
     );
   }
@@ -59,6 +70,8 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    backgroundColor: Appearance.getColorScheme() === 'dark' ? '#222' : '#eee',
+    height: '100%',
   },
   centered: {
     height: '100%',
@@ -68,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   connectingText: {
+    color: '#222',
     marginTop: 10,
     fontSize: 15,
   },
