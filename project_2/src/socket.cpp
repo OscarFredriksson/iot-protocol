@@ -66,7 +66,7 @@ std::vector<char> Socket::receive(int byteCount) {
 }
 
 std::vector<char> Socket::receive() {
-  int msgSize = 1024;
+  int msgSize = 2048;
 
   return receive(msgSize);
 }

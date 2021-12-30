@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {
   ActivityIndicator,
   Appearance,
@@ -6,45 +6,84 @@ import {
   Text,
   View,
 } from 'react-native';
-import MQTT, {IMqttClient} from 'sp-react-native-mqtt';
+import MQTT, {IMqttClient, QoS} from 'sp-react-native-mqtt';
 import LampController from '../components/dashboard/LampController';
+import {getWarmthFromRgb, warmth} from '../components/parts/WarmthPicker';
 import Colors from '../constants/Colors';
+
+interface LampSetting {
+  on?: boolean;
+  warmth?: warmth;
+  dim?: number;
+}
+
+function lampReducer(state: any, action: any) {
+  let newValues: LampSetting = state[action.lampId].values || {};
+
+  for (const key in action.values) {
+    if (key === '5850') {
+      newValues.on = action.values[key];
+    } else if (key === '5706') {
+      newValues.warmth = getWarmthFromRgb(action.values[key]);
+    } else if (key === '5851') {
+      newValues.dim = action.values[key];
+    }
+  }
+
+  return {
+    ...state,
+    [action.lampId]: {
+      values: newValues,
+      isPublishing: false,
+    },
+  };
+}
 
 export function DashboardScreen() {
   const [mqttClient, setMqttClient] = useState<IMqttClient>();
   const [connected, setConnected] = useState(false);
+  const [lamps, dispatchLamps] = useReducer(lampReducer, {
+    lamp1: {values: {on: 1, warmth: 'white', dim: 100}, isPublishing: false},
+  });
 
   useEffect(() => {
     MQTT.createClient({
       uri: 'mqtt://192.168.183.189:1883',
       clientId: 'light-controller-app',
-    }).then((client: any) => {
-      setMqttClient(client);
-
+    }).then((client: IMqttClient) => {
       client.on('closed', () => {
         setConnected(false);
-        setTimeout(() => client.connect(), 5000);
-        console.log('mqtt.event.closed');
       });
 
-      client.on('error', (msg: string) => {
+      client.on('error', () => {
         setConnected(false);
-        console.log('mqtt.event.error', msg);
-        setTimeout(() => client.connect(), 5000);
-      });
-
-      client.on('message', (msg: string) => {
-        console.log('mqtt.event.message', msg);
       });
 
       client.on('connect', function () {
         setConnected(true);
-
+        client.subscribe('lamp1/status', 0);
         console.log('connected!');
       });
+
+      client.on(
+        'message',
+        (msg: {data: string; qos: QoS; retain: boolean; topic: string}) => {
+          if (msg.topic === 'lamp1/status') {
+            dispatchLamps({lampId: 'lamp1', values: JSON.parse(msg.data)});
+          }
+        },
+      );
       client.connect();
+      setMqttClient(client);
     });
-  }, [setConnected, setMqttClient]);
+  }, []);
+
+  const publish = useCallback(
+    (topic: string, payload: string, qos: QoS, retain: boolean) => {
+      mqttClient?.publish(topic, payload, qos, retain);
+    },
+    [mqttClient],
+  );
 
   if (!connected || !mqttClient) {
     return (
@@ -57,8 +96,16 @@ export function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <LampController mqttClient={mqttClient} title="Bedroom" lampId="lamp1" />
-      <LampController mqttClient={mqttClient} title="Kitchen" lampId="lamp2" />
+      <LampController
+        publish={publish}
+        title="Bedroom"
+        lampId="lamp1"
+        isPublishing={lamps.lamp1.isPublishing}
+        on={lamps.lamp1.values.on}
+        warmth={lamps.lamp1.values.warmth}
+        dim={lamps.lamp1.values.dim}
+      />
+      {/* <LampController mqttClient={mqttClient} title="Kitchen" lampId="lamp2" /> */}
     </View>
   );
 }

@@ -1,78 +1,132 @@
-import React, {useCallback, useState} from 'react';
-import {Appearance, StyleSheet, Text, View} from 'react-native';
-import {IMqttClient} from 'sp-react-native-mqtt';
+/* eslint-disable @typescript-eslint/no-shadow */
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  Appearance,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import {QoS} from 'sp-react-native-mqtt';
+import Colors from '../../constants/Colors';
 import Dimmer from '../parts/Dimmer';
 import OnOffButton from '../parts/OnOffButton';
 import WarmthPicker, {getRgbFromWarmth, warmth} from '../parts/WarmthPicker';
 
 interface LampControllerProps {
-  mqttClient: IMqttClient;
+  publish: (topic: string, payload: string, qos: QoS, retain: boolean) => void;
   title: string;
   lampId: string;
   style?: object;
+  isPublishing: boolean;
+  on: boolean;
+  warmth: warmth;
+  dim: number;
 }
 
 export default function LampController(props: LampControllerProps) {
-  const [isOn, setIsOn] = useState(true);
-  const [dimValue, setDimValue] = useState<number>(50);
+  const [isPublishing, setIsPublishing] = useState(props.isPublishing);
+
+  const [isOn, setIsOn] = useState<boolean>(props.on);
+  const [dim, setDim] = useState<number>(props.dim);
+  const [warmth, setWarmth] = useState<warmth>(props.warmth);
+
+  useEffect(() => {
+    setIsPublishing(props.isPublishing);
+  }, [props.isPublishing]);
+
+  useEffect(() => {
+    setIsPublishing(false);
+    setIsOn(props.on);
+  }, [props.on]);
+
+  useEffect(() => {
+    setIsPublishing(false);
+    setDim(props.dim);
+  }, [props.dim]);
+
+  useEffect(() => {
+    setIsPublishing(false);
+    setWarmth(props.warmth);
+  }, [props.warmth]);
 
   const dimSpeed = 5;
 
   const mqttSendToggle = useCallback(() => {
     const payload = {
       '5850': isOn ? 0 : 1,
+      '5706': getRgbFromWarmth(warmth),
+      '5851': !isOn && dim === 0 ? 50 : dim,
+      '5712': dimSpeed,
     };
-    props.mqttClient.publish(props.lampId, JSON.stringify(payload), 0, false);
-    setIsOn(!isOn);
 
-    if (isOn && dimValue === 0) {
-      setDimValue(50);
-    }
-  }, [isOn, props.mqttClient, props.lampId, dimValue]);
+    console.log(payload);
+
+    setIsOn(!isOn);
+    setIsPublishing(true);
+    props.publish(props.lampId, JSON.stringify(payload), 0, true);
+  }, [dim, isOn, props, warmth]);
 
   const mqttSendDim = useCallback(
     (value: number) => {
       const payload = {
+        '5850': value === 0 ? 0 : 1,
+        '5706': getRgbFromWarmth(warmth),
         '5851': value,
         '5712': dimSpeed,
       };
-      setIsOn(value === 0 ? false : true);
-      props.mqttClient.publish(props.lampId, JSON.stringify(payload), 0, false);
+
+      console.log(payload);
+
+      setDim(value);
+      setIsPublishing(true);
+      props.publish(props.lampId, JSON.stringify(payload), 0, true);
     },
-    [props.mqttClient, props.lampId],
+    [props, warmth],
   );
 
   const mqttSendWarmth = useCallback(
     (value: warmth) => {
       const payload = {
+        '5850': isOn ? 1 : 0,
         '5706': getRgbFromWarmth(value),
+        '5851': dim,
         '5712': dimSpeed,
       };
 
-      props.mqttClient.publish(props.lampId, JSON.stringify(payload), 0, false);
+      setWarmth(value);
+      setIsPublishing(true);
+      props.publish(props.lampId, JSON.stringify(payload), 0, true);
     },
-    [props.lampId, props.mqttClient],
+    [dim, isOn, props],
   );
 
   return (
     <View style={{...props.style, ...styles.container}}>
-      <Text style={styles.label}>{props.title}</Text>
+      <View style={[styles.row, styles.labelRow]}>
+        <Text style={styles.label}>{props.title}</Text>
+        {isPublishing && (
+          <ActivityIndicator size="small" color={Colors.primary} />
+        )}
+      </View>
       <View style={styles.row}>
-        <OnOffButton onPress={() => mqttSendToggle()} isOn={isOn} />
+        <OnOffButton
+          isLoading={isOn === undefined}
+          onPress={() => mqttSendToggle()}
+          isOn={isOn}
+        />
         <WarmthPicker
+          isLoading={warmth === undefined}
           style={styles.warmthPicker}
-          initialValue="warm"
+          value={warmth}
           onSelect={(value: warmth) => mqttSendWarmth(value)}
         />
       </View>
       <Dimmer
+        isLoading={dim === undefined}
         style={styles.dimmer}
-        initialValue={!isOn ? 0 : dimValue}
-        onChange={(value: number) => {
-          console.log('value', value);
-          setDimValue(value);
-          mqttSendDim(value);
-        }}
+        value={!isOn ? 0 : dim}
+        onChange={(value: number) => mqttSendDim(value)}
       />
     </View>
   );
@@ -94,14 +148,21 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    alignContent: 'center',
     width: '100%',
   },
-  label: {
-    color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
+  labelRow: {
     width: '100%',
+    marginBottom: 10,
+    justifyContent: 'flex-start',
+  },
+  label: {
+    marginLeft: 10,
+    marginRight: 20,
+    color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
     textAlign: 'left',
     fontSize: 20,
-    marginBottom: 10,
     fontWeight: '600',
   },
 });

@@ -1,5 +1,10 @@
-import React, {useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import React from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Colors from '../../constants/Colors';
 import Card from '../ui/Card';
 import LabelText from '../ui/LabelText';
@@ -14,8 +19,12 @@ export function getRgbFromWarmth(warmth: warmth): string {
     : 'efd275';
 }
 
+export function getWarmthFromRgb(rgb: string): warmth {
+  return rgb === 'f5faf6' ? 'white' : rgb === 'f1e0b5' ? 'warm' : 'glow';
+}
+
 interface WarmthOptionProps {
-  current: boolean;
+  isCurrent: boolean;
   warmth: warmth;
   onPress: (warmth: warmth) => void;
 }
@@ -26,16 +35,13 @@ function WarmthOption(props: WarmthOptionProps) {
       <View
         style={[
           styles.outline,
-          props.current
+          props.isCurrent
             ? styles.warmthOptionSelected
             : styles.warmthOptionUnselected,
         ]}>
         <View
           style={[
             styles.warmthOption,
-            // props.current
-            //   ? styles.warmthOptionSelected
-            //   : styles.warmthOptionUnselected,
             {backgroundColor: '#' + getRgbFromWarmth(props.warmth)},
           ]}
         />
@@ -45,39 +51,51 @@ function WarmthOption(props: WarmthOptionProps) {
 }
 
 interface WarmthPickerProps {
-  initialValue: warmth;
+  isLoading?: boolean;
+  value: warmth;
   onSelect: (value: warmth) => void;
   style?: object;
 }
 
 export default function WarmthPicker(props: WarmthPickerProps) {
-  const [currentWarmth, setCurrentWarmth] = useState<warmth>('glow');
+  // const [currentWarmth, setCurrentWarmth] = useState<warmth>(props.value);
 
-  const warmthChangeHandler = (value: warmth) => {
-    setCurrentWarmth(value);
-    props.onSelect(value);
-  };
+  // useEffect(() => {
+  //   setCurrentWarmth(props.value);
+  // }, [props.value]);
+
+  // const warmthChangeHandler = (value: warmth) => {
+  //   props.onSelect(value);
+  // };
 
   return (
     <Card style={{...props.style, ...styles.card}}>
-      <LabelText>Warmth</LabelText>
-      <View style={styles.row}>
-        <WarmthOption
-          current={currentWarmth === 'glow'}
-          warmth="glow"
-          onPress={warmthChangeHandler}
-        />
-        <WarmthOption
-          current={currentWarmth === 'warm'}
-          warmth="warm"
-          onPress={warmthChangeHandler}
-        />
-        <WarmthOption
-          current={currentWarmth === 'white'}
-          warmth="white"
-          onPress={warmthChangeHandler}
-        />
-      </View>
+      {props.isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <>
+          <LabelText>Warmth</LabelText>
+          <View style={styles.row}>
+            <WarmthOption
+              isCurrent={props.value === 'glow'}
+              warmth="glow"
+              onPress={props.onSelect}
+            />
+            <WarmthOption
+              isCurrent={props.value === 'warm'}
+              warmth="warm"
+              onPress={props.onSelect}
+            />
+            <WarmthOption
+              isCurrent={props.value === 'white'}
+              warmth="white"
+              onPress={props.onSelect}
+            />
+          </View>
+        </>
+      )}
     </Card>
   );
 }
@@ -86,7 +104,13 @@ const styles = StyleSheet.create({
   card: {
     height: 100,
     paddingHorizontal: 20,
-    paddingBottom: 5,
+    justifyContent: 'flex-start',
+  },
+  centered: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   row: {
     width: '100%',

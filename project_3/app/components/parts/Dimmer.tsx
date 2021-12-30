@@ -1,12 +1,13 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {Slider} from 'react-native-elements/dist/slider/Slider';
 import Colors from '../../constants/Colors';
 import Card from '../ui/Card';
 import LabelText from '../ui/LabelText';
 
 interface DimmerProps {
-  initialValue: number;
+  isLoading?: boolean;
+  value: number;
   onChange: (value: number) => void;
   style?: object;
 }
@@ -14,28 +15,42 @@ interface DimmerProps {
 export default function Dimmer(props: DimmerProps) {
   return (
     <Card style={{...props.style, ...styles.card}}>
-      <LabelText>Brightness</LabelText>
-      <Slider
-        style={styles.slider}
-        thumbStyle={styles.thumb}
-        thumbTintColor={Colors.primary}
-        minimumTrackTintColor={Colors.primary}
-        maximumTrackTintColor={Colors.inactive}
-        minimumValue={0}
-        maximumValue={254}
-        step={1}
-        value={props.initialValue}
-        onSlidingComplete={props.onChange}
-      />
+      {props.isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <>
+          <LabelText>Brightness</LabelText>
+          <Slider
+            style={styles.slider}
+            thumbStyle={styles.thumb}
+            thumbTintColor={Colors.primary}
+            minimumTrackTintColor={Colors.primary}
+            maximumTrackTintColor={Colors.inactive}
+            minimumValue={0}
+            maximumValue={254}
+            step={1}
+            value={props.value}
+            onSlidingComplete={(value: number) => props.onChange(value)}
+          />
+        </>
+      )}
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    height: 75,
-    paddingTop: 5,
+    height: 80,
     paddingHorizontal: 20,
+    justifyContent: 'flex-start',
+  },
+  centered: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   slider: {
     width: '100%',

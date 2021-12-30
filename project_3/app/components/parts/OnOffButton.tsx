@@ -1,30 +1,38 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import Card from '../ui/Card';
 
 interface OnOffButtonProps {
+  isLoading?: boolean;
   onPress: () => void;
-  isOn?: boolean;
+  isOn: boolean;
   style?: object;
 }
 
 export default function OnOffButton(props: OnOffButtonProps) {
   return (
     <Card style={{...props.style, ...styles.card}}>
-      <TouchableOpacity onPress={props.onPress}>
-        <IonIcon
-          name="power"
-          size={50}
-          color={
-            props.isOn || props.isOn === undefined
-              ? Colors.primary
-              : Colors.inactive
-          }
-        />
-      </TouchableOpacity>
+      {props.isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <TouchableOpacity onPress={props.onPress}>
+          <IonIcon
+            name="power"
+            size={50}
+            color={props.isOn ? Colors.primary : Colors.inactive}
+          />
+        </TouchableOpacity>
+      )}
     </Card>
   );
 }
@@ -35,5 +43,11 @@ const styles = StyleSheet.create({
     width: 100,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  centered: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -89,7 +89,7 @@ int Socket::connect() {
 
 std::vector<char> Socket::receive() {
 
-  int msgSize = 1024;
+  int msgSize = 2048;
   char msg[msgSize];
 
   int byteCount = wolfSSL_read(ssl, msg, msgSize);

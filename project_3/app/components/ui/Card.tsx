@@ -12,13 +12,13 @@ export default function Card(props: React.PropsWithChildren<CardProps>) {
 const styles = StyleSheet.create({
   card: {
     shadowColor: 'black',
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.2,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 1,
+    elevation: 2,
     backgroundColor: Appearance.getColorScheme() === 'dark' ? 'black' : 'white',
     borderRadius: 15,
     alignItems: 'center',

@@ -19,5 +19,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: Appearance.getColorScheme() === 'dark' ? '#eee' : '#444',
     fontWeight: '500',
+    marginTop: 10,
   },
 });

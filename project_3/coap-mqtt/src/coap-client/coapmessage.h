@@ -111,6 +111,12 @@ public:
 
   void setPayload(const std::string& payload);
 
+  CoapType getType();
+
+  CoapCode getCode();
+
+  std::string getPayload();
+
   std::vector<char> serialize();
 
   int deserialize(const std::vector<char>& msg);

@@ -277,6 +277,12 @@ void CoapMessage::setPayload(const std::string& payload) {
   this->payload = payload;
 }
 
+CoapType CoapMessage::getType() { return type; }
+
+CoapCode CoapMessage::getCode() { return code; }
+
+std::string CoapMessage::getPayload() { return payload; }
+
 int CoapMessage::deserialize(const std::vector<char>& msg) {
   int byteIt = 0;
 
