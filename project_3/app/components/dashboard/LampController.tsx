@@ -1,4 +1,10 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   Appearance,
@@ -14,6 +20,8 @@ import WarmthPicker, {getRgbFromWarmth, warmth} from '../parts/WarmthPicker';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import StatsModal from '../parts/StatsModal';
+import Card from '../ui/Card';
+import ColoredCard from '../ui/ColoredCard';
 
 interface LampControllerProps {
   publish: (topic: string, payload: string, qos: QoS, retain: boolean) => void;
@@ -28,6 +36,17 @@ interface LampControllerProps {
 
 const DIM_SPEED = 5;
 
+export type stat = {rtt: number};
+export type statsState = Array<stat>;
+
+function statsReducer(state: statsState, action: {value: stat}): statsState {
+  let newState = state;
+
+  newState.push(action.value);
+
+  return newState;
+}
+
 export default function LampController(props: LampControllerProps) {
   const [isPublishing, setIsPublishing] = useState(props.isPublishing);
 
@@ -40,10 +59,20 @@ export default function LampController(props: LampControllerProps) {
 
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [stats, dispatchStats] = useReducer(statsReducer, [
+    {rtt: 50},
+    {rtt: 70},
+    {rtt: 60},
+  ]);
+
   const stopRttTimer = useCallback(() => {
     if (!rttTimer) return;
 
-    console.log('Dim RTT:', new Date().getTime() - rttTimer?.getTime(), 'ms');
+    const rttValue = new Date().getTime() - rttTimer?.getTime();
+
+    dispatchStats({value: {rtt: rttValue}});
+
+    console.log('Dim RTT:', rttValue, 'ms');
   }, [rttTimer]);
 
   useEffect(() => {
@@ -133,8 +162,12 @@ export default function LampController(props: LampControllerProps) {
   );
 
   return (
-    <View style={{...props.style, ...styles.container}}>
-      <StatsModal visible={modalVisible} close={() => setModalVisible(false)} />
+    <Card style={{...props.style, ...styles.container}}>
+      <StatsModal
+        visible={modalVisible}
+        close={() => setModalVisible(false)}
+        stats={stats}
+      />
       <View style={[styles.row, styles.labelRow]}>
         <Text style={styles.label}>{props.title}</Text>
         <View style={styles.publishSpinner}>
@@ -144,7 +177,9 @@ export default function LampController(props: LampControllerProps) {
         </View>
 
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <IonIcon name="stats-chart" color={Colors.primary} size={20} />
+          <ColoredCard style={styles.statsContainer}>
+            <IonIcon name="stats-chart" color={Colors.primary} size={20} />
+          </ColoredCard>
         </TouchableOpacity>
       </View>
       <View style={styles.row}>
@@ -166,7 +201,7 @@ export default function LampController(props: LampControllerProps) {
         value={!isOn ? 0 : dim}
         onChange={(value: number) => mqttSendDim(value)}
       />
-    </View>
+    </Card>
   );
 }
 
@@ -180,8 +215,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    margin: 20,
+    padding: 15,
+    margin: 10,
     width: '100%',
+    maxWidth: 320,
     alignItems: 'center',
   },
   row: {
@@ -195,17 +232,22 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 10,
     justifyContent: 'flex-start',
-    paddingHorizontal: 15,
+    paddingLeft: 15,
   },
   label: {
     marginRight: 20,
     color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
     textAlign: 'left',
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
   },
   publishSpinner: {
     alignItems: 'flex-start',
     flex: 2,
+  },
+  statsContainer: {
+    height: 50,
+    width: 50,
+    borderRadius: 15,
   },
 });

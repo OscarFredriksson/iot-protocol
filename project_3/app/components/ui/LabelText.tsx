@@ -1,5 +1,5 @@
 import React from 'react';
-import {Appearance, StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text} from 'react-native';
 
 interface LabelTextProps {
   style?: object;
@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '100%',
     textAlign: 'left',
-    color: Appearance.getColorScheme() === 'dark' ? '#eee' : '#444',
-    fontWeight: '500',
-    marginTop: 10,
+    color: '#000',
+    fontWeight: 'bold',
+    marginTop: 0,
   },
 });

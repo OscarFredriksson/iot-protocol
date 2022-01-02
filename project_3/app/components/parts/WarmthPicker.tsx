@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import Card from '../ui/Card';
+import ColoredCard from '../ui/ColoredCard';
 import LabelText from '../ui/LabelText';
 
 export type warmth = 'white' | 'warm' | 'glow';
@@ -58,18 +58,8 @@ interface WarmthPickerProps {
 }
 
 export default function WarmthPicker(props: WarmthPickerProps) {
-  // const [currentWarmth, setCurrentWarmth] = useState<warmth>(props.value);
-
-  // useEffect(() => {
-  //   setCurrentWarmth(props.value);
-  // }, [props.value]);
-
-  // const warmthChangeHandler = (value: warmth) => {
-  //   props.onSelect(value);
-  // };
-
   return (
-    <Card style={{...props.style, ...styles.card}}>
+    <ColoredCard style={{...props.style, ...styles.card}}>
       {props.isLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={Colors.primary} />
@@ -96,7 +86,7 @@ export default function WarmthPicker(props: WarmthPickerProps) {
           </View>
         </>
       )}
-    </Card>
+    </ColoredCard>
   );
 }
 

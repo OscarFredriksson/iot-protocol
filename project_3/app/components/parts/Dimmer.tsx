@@ -2,7 +2,7 @@ import React from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {Slider} from 'react-native-elements/dist/slider/Slider';
 import Colors from '../../constants/Colors';
-import Card from '../ui/Card';
+import ColoredCard from '../ui/ColoredCard';
 import LabelText from '../ui/LabelText';
 
 interface DimmerProps {
@@ -14,7 +14,7 @@ interface DimmerProps {
 
 export default function Dimmer(props: DimmerProps) {
   return (
-    <Card style={{...props.style, ...styles.card}}>
+    <ColoredCard style={{...props.style, ...styles.card}}>
       {props.isLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={Colors.primary} />
@@ -27,7 +27,7 @@ export default function Dimmer(props: DimmerProps) {
             thumbStyle={styles.thumb}
             thumbTintColor={Colors.primary}
             minimumTrackTintColor={Colors.primary}
-            maximumTrackTintColor={Colors.inactive}
+            maximumTrackTintColor="#fff"
             minimumValue={0}
             maximumValue={254}
             step={1}
@@ -36,7 +36,7 @@ export default function Dimmer(props: DimmerProps) {
           />
         </>
       )}
-    </Card>
+    </ColoredCard>
   );
 }
 

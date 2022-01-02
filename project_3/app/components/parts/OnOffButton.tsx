@@ -8,7 +8,7 @@ import {
 
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
-import Card from '../ui/Card';
+import ColoredCard from '../ui/ColoredCard';
 
 interface OnOffButtonProps {
   isLoading?: boolean;
@@ -19,7 +19,7 @@ interface OnOffButtonProps {
 
 export default function OnOffButton(props: OnOffButtonProps) {
   return (
-    <Card style={{...props.style, ...styles.card}}>
+    <ColoredCard style={{...props.style, ...styles.card}}>
       {props.isLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={Colors.primary} />
@@ -33,7 +33,7 @@ export default function OnOffButton(props: OnOffButtonProps) {
           />
         </TouchableOpacity>
       )}
-    </Card>
+    </ColoredCard>
   );
 }
 
