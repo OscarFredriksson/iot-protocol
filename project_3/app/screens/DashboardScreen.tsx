@@ -18,7 +18,9 @@ interface LampSetting {
 }
 
 function lampReducer(state: any, action: any) {
-  let newValues: LampSetting = state[action.lampId].values || {};
+  let newValues: LampSetting = state[action.lampId]
+    ? state[action.lampId].values
+    : {};
 
   for (const key in action.values) {
     if (key === '5850') {
@@ -42,9 +44,7 @@ function lampReducer(state: any, action: any) {
 export function DashboardScreen() {
   const [mqttClient, setMqttClient] = useState<IMqttClient>();
   const [connected, setConnected] = useState(false);
-  const [lamps, dispatchLamps] = useReducer(lampReducer, {
-    lamp1: {values: {on: 1, warmth: 'white', dim: 100}, isPublishing: false},
-  });
+  const [lamps, dispatchLamps] = useReducer(lampReducer, {});
 
   useEffect(() => {
     MQTT.createClient({
@@ -100,12 +100,20 @@ export function DashboardScreen() {
         publish={publish}
         title="Bedroom"
         lampId="lamp1"
-        isPublishing={lamps.lamp1.isPublishing}
-        on={lamps.lamp1.values.on}
-        warmth={lamps.lamp1.values.warmth}
-        dim={lamps.lamp1.values.dim}
+        isPublishing={lamps.lamp1?.isPublishing}
+        on={lamps.lamp1?.values.on}
+        warmth={lamps.lamp1?.values.warmth}
+        dim={lamps.lamp1?.values.dim}
       />
-      {/* <LampController mqttClient={mqttClient} title="Kitchen" lampId="lamp2" /> */}
+      <LampController
+        publish={publish}
+        title="Kitchen"
+        lampId="lamp2"
+        isPublishing={lamps.lamp2?.isPublishing}
+        on={lamps.lamp2?.values.on}
+        warmth={lamps.lamp2?.values.warmth}
+        dim={lamps.lamp2?.values.dim}
+      />
     </View>
   );
 }

@@ -5,4 +5,5 @@ export default {
   accent: '#03c0cf',
   background: '#3385ff',
   inactive: '#bbb',
+  blueOpacity: '#0066ff44',
 };

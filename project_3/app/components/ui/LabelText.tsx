@@ -15,6 +15,7 @@ export default function LabelText(
 
 const styles = StyleSheet.create({
   label: {
+    fontSize: 14,
     width: '100%',
     textAlign: 'left',
     color: Appearance.getColorScheme() === 'dark' ? '#eee' : '#444',

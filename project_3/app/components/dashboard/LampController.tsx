@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Appearance,
@@ -12,6 +11,9 @@ import Colors from '../../constants/Colors';
 import Dimmer from '../parts/Dimmer';
 import OnOffButton from '../parts/OnOffButton';
 import WarmthPicker, {getRgbFromWarmth, warmth} from '../parts/WarmthPicker';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import StatsModal from '../parts/StatsModal';
 
 interface LampControllerProps {
   publish: (topic: string, payload: string, qos: QoS, retain: boolean) => void;
@@ -24,65 +26,95 @@ interface LampControllerProps {
   dim: number;
 }
 
+const DIM_SPEED = 5;
+
 export default function LampController(props: LampControllerProps) {
   const [isPublishing, setIsPublishing] = useState(props.isPublishing);
 
   const [isOn, setIsOn] = useState<boolean>(props.on);
   const [dim, setDim] = useState<number>(props.dim);
-  const [warmth, setWarmth] = useState<warmth>(props.warmth);
+  const [warmthValue, setWarmthValue] = useState<warmth>('warm');
+  const prevValues = useRef({isOn, dim, warmthValue});
+
+  const [rttTimer, setRttTimer] = useState<Date>();
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const stopRttTimer = useCallback(() => {
+    if (!rttTimer) return;
+
+    console.log('Dim RTT:', new Date().getTime() - rttTimer?.getTime(), 'ms');
+  }, [rttTimer]);
 
   useEffect(() => {
     setIsPublishing(props.isPublishing);
   }, [props.isPublishing]);
 
   useEffect(() => {
+    if (props.on === prevValues.current.isOn) return;
+
     setIsPublishing(false);
     setIsOn(props.on);
-  }, [props.on]);
+    prevValues.current.isOn = props.on;
+
+    stopRttTimer();
+  }, [isOn, props.on, stopRttTimer]);
 
   useEffect(() => {
+    if (props.dim === prevValues.current.dim) return;
+
     setIsPublishing(false);
     setDim(props.dim);
-  }, [props.dim]);
+    prevValues.current.dim = props.dim;
+
+    stopRttTimer();
+  }, [dim, props.dim, stopRttTimer]);
 
   useEffect(() => {
-    setIsPublishing(false);
-    setWarmth(props.warmth);
-  }, [props.warmth]);
+    if (props.warmth === prevValues.current.warmthValue) return;
 
-  const dimSpeed = 5;
+    setIsPublishing(false);
+    setWarmthValue(props.warmth);
+    prevValues.current.warmthValue = props.warmth;
+
+    stopRttTimer();
+  }, [props.warmth, stopRttTimer, warmthValue]);
+
+  const publish = useCallback(
+    (payload: object) => {
+      setIsPublishing(true);
+
+      setRttTimer(new Date());
+      props.publish(props.lampId, JSON.stringify(payload), 0, true);
+    },
+    [props],
+  );
 
   const mqttSendToggle = useCallback(() => {
     const payload = {
       '5850': isOn ? 0 : 1,
-      '5706': getRgbFromWarmth(warmth),
+      '5706': getRgbFromWarmth(warmthValue),
       '5851': !isOn && dim === 0 ? 50 : dim,
-      '5712': dimSpeed,
+      '5712': DIM_SPEED,
     };
 
-    console.log(payload);
-
     setIsOn(!isOn);
-    setIsPublishing(true);
-    props.publish(props.lampId, JSON.stringify(payload), 0, true);
-  }, [dim, isOn, props, warmth]);
+    publish(payload);
+  }, [dim, isOn, publish, warmthValue]);
 
   const mqttSendDim = useCallback(
     (value: number) => {
       const payload = {
         '5850': value === 0 ? 0 : 1,
-        '5706': getRgbFromWarmth(warmth),
+        // '5706': getRgbFromWarmth(warmthValue),
         '5851': value,
-        '5712': dimSpeed,
+        '5712': DIM_SPEED,
       };
 
-      console.log(payload);
-
       setDim(value);
-      setIsPublishing(true);
-      props.publish(props.lampId, JSON.stringify(payload), 0, true);
+      publish(payload);
     },
-    [props, warmth],
+    [publish],
   );
 
   const mqttSendWarmth = useCallback(
@@ -91,23 +123,29 @@ export default function LampController(props: LampControllerProps) {
         '5850': isOn ? 1 : 0,
         '5706': getRgbFromWarmth(value),
         '5851': dim,
-        '5712': dimSpeed,
+        '5712': DIM_SPEED,
       };
 
-      setWarmth(value);
-      setIsPublishing(true);
-      props.publish(props.lampId, JSON.stringify(payload), 0, true);
+      setWarmthValue(value);
+      publish(payload);
     },
-    [dim, isOn, props],
+    [dim, isOn, publish],
   );
 
   return (
     <View style={{...props.style, ...styles.container}}>
+      <StatsModal visible={modalVisible} close={() => setModalVisible(false)} />
       <View style={[styles.row, styles.labelRow]}>
         <Text style={styles.label}>{props.title}</Text>
-        {isPublishing && (
-          <ActivityIndicator size="small" color={Colors.primary} />
-        )}
+        <View style={styles.publishSpinner}>
+          {isPublishing && (
+            <ActivityIndicator size="small" color={Colors.primary} />
+          )}
+        </View>
+
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <IonIcon name="stats-chart" color={Colors.primary} size={20} />
+        </TouchableOpacity>
       </View>
       <View style={styles.row}>
         <OnOffButton
@@ -116,9 +154,9 @@ export default function LampController(props: LampControllerProps) {
           isOn={isOn}
         />
         <WarmthPicker
-          isLoading={warmth === undefined}
+          isLoading={warmthValue === undefined}
           style={styles.warmthPicker}
-          value={warmth}
+          value={warmthValue}
           onSelect={(value: warmth) => mqttSendWarmth(value)}
         />
       </View>
@@ -144,6 +182,7 @@ const styles = StyleSheet.create({
   container: {
     margin: 20,
     width: '100%',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
@@ -156,13 +195,17 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 10,
     justifyContent: 'flex-start',
+    paddingHorizontal: 15,
   },
   label: {
-    marginLeft: 10,
     marginRight: 20,
     color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
     textAlign: 'left',
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+  publishSpinner: {
+    alignItems: 'flex-start',
+    flex: 2,
   },
 });
