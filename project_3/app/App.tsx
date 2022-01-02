@@ -5,6 +5,8 @@ import {NavigationContainer} from '@react-navigation/native';
 
 import {LogBox, StatusBar} from 'react-native';
 
+import 'react-native-gesture-handler';
+
 //https://stackoverflow.com/questions/69538962
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 
