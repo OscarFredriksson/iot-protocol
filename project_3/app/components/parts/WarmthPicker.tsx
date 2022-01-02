@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     width: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.inactive,
+    borderColor: Colors.primary, //Colors.inactive,
   },
 
   outline: {

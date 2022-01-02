@@ -46,7 +46,7 @@ function lampReducer(state: any, action: any) {
   };
 }
 
-export function DashboardScreen(props: NativeStackScreenProps<any>) {
+export default function DashboardScreen(props: NativeStackScreenProps<any>) {
   const route = useRoute<any>();
 
   const {mqttClient} = route;

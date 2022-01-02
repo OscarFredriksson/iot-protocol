@@ -1,8 +1,5 @@
 import React from 'react';
-// import {createStackNavigator} from '@react-navigation/stack';
 
-import {DashboardScreen} from '../screens/DashboardScreen';
-// import {Platform} from 'react-native';
 import Colors from '../constants/Colors';
 import {
   createNativeStackNavigator,
@@ -10,7 +7,7 @@ import {
 } from '@react-navigation/native-stack';
 import ConnectingScreen from '../screens/ConnectingScreen';
 
-// import DashboardScreen from '../screens/DashboardScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +17,7 @@ const defaultNavOptions: NativeStackNavigationOptions = {
     backgroundColor: Colors.primary,
   },
   headerTintColor: 'white',
+  presentation: 'fullScreenModal',
 };
 
 export default function AppNavigator() {
