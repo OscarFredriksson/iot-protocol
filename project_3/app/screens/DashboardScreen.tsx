@@ -133,15 +133,6 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
             warmth={lamps.lamp2?.values.warmth}
             dim={lamps.lamp2?.values.dim}
           />
-          <LampController
-            publish={publish}
-            title="Hall"
-            lampId="lamp2"
-            isPublishing={lamps.lamp2?.isPublishing}
-            on={lamps.lamp2?.values.on}
-            warmth={lamps.lamp2?.values.warmth}
-            dim={lamps.lamp2?.values.dim}
-          />
         </SafeAreaView>
       </ScrollView>
     </View>

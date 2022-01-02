@@ -32,7 +32,7 @@ export default function StatsModal(props: StatsModalProps) {
               <View style={styles.row}>
                 <TouchableOpacity onPress={() => props.close()}>
                   <View style={styles.closeButton}>
-                    <IonIcon name="close" size={20} color="#333" />
+                    <IonIcon name="close" size={20} color={Colors.primary} />
                   </View>
                 </TouchableOpacity>
               </View>
@@ -46,7 +46,6 @@ export default function StatsModal(props: StatsModalProps) {
                   <>
                     <LineChart
                       data={{
-                        // labels: props.stats.map(() => ''),
                         labels: [],
                         datasets: [
                           {
@@ -105,7 +104,7 @@ const chartConfig: ChartConfig = {
   backgroundGradientFrom: 'white',
   backgroundGradientTo: 'white',
   decimalPlaces: 0,
-  color: () => Colors.blueOpacity,
+  color: () => Colors.primaryOpacityDarker,
   labelColor: () => Colors.primary,
   fillShadowGradient: Colors.accent,
   fillShadowGradientOpacity: 0.1,
@@ -115,7 +114,7 @@ const chartConfig: ChartConfig = {
   propsForDots: {
     r: '3',
     strokeWidth: '6',
-    stroke: Colors.blueOpacity,
+    stroke: Colors.primaryOpacity,
     fill: Colors.primary,
   },
 };
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   closeButton: {
-    backgroundColor: Colors.blueOpacity,
+    backgroundColor: Colors.primaryOpacity,
     width: 30,
     height: 30,
     borderRadius: 15,

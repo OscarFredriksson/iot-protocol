@@ -14,7 +14,7 @@ export default function ColoredCard(
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.primary + '33',
+    backgroundColor: Colors.primaryOpacity,
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
