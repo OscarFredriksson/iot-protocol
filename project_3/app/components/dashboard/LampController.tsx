@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     padding: 15,
     margin: 10,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 350,
     alignItems: 'center',
   },
   row: {

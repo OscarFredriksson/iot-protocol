@@ -8,12 +8,13 @@ import Colors from '../constants/Colors';
 export default function ConnectingScreen(props: NativeStackScreenProps<any>) {
   useEffect(() => {
     MQTT.createClient({
-      uri: 'mqtt://192.168.183.189:1883',
+      uri: 'mqtt://127.0.0.1:1883',
       clientId: 'light-controller-app',
     }).then((client: IMqttClient) => {
       client.on('connect', function () {
         props.navigation.navigate('Dashboard', {mqttClient: client});
       });
+      client.connect();
     });
   }, [props.navigation]);
 

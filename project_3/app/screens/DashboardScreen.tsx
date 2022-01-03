@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {
   ActivityIndicator,
   Appearance,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -133,6 +134,15 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
             warmth={lamps.lamp2?.values.warmth}
             dim={lamps.lamp2?.values.dim}
           />
+          <LampController
+            publish={publish}
+            title="Hall"
+            lampId="lamp2"
+            isPublishing={lamps.lamp2?.isPublishing}
+            on={lamps.lamp2?.values.on}
+            warmth={lamps.lamp2?.values.warmth}
+            dim={lamps.lamp2?.values.dim}
+          />
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -144,14 +154,14 @@ const styles = StyleSheet.create({
     backgroundColor: Appearance.getColorScheme() === 'dark' ? '#222' : '#eee',
   },
   content: {
-    marginTop: -100,
+    marginTop: Platform.OS === 'android' ? -50 : -100,
     paddingTop: 0,
     paddingHorizontal: '5%',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'flex-start',
     height: '100%',
-    zIndex: 3,
+    elevation: 3,
   },
   centered: {
     height: '100%',

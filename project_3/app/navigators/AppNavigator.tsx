@@ -16,6 +16,10 @@ const defaultNavOptions: NativeStackNavigationOptions = {
   headerStyle: {
     backgroundColor: Colors.primary,
   },
+  // headerBlurEffect: 'light',
+  headerTitleStyle: {
+    fontSize: 25,
+  },
   headerTintColor: 'white',
   presentation: 'fullScreenModal',
 };

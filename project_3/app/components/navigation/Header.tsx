@@ -13,7 +13,8 @@ export default function Header(props: HeaderProps) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 75,
+    height: 100,
+    marginTop: -25,
     backgroundColor: Colors.primary,
     // borderBottomLeftRadius: 20,
     // borderBottomRightRadius: 20,
@@ -25,5 +26,6 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 2,
     elevation: 2,
+    zIndex: 1,
   },
 });
