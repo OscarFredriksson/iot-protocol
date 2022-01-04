@@ -1,4 +1,8 @@
-import {useRoute} from '@react-navigation/native';
+import {
+  NavigationRouteContext,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {
@@ -47,53 +51,54 @@ function lampReducer(state: any, action: any) {
   };
 }
 
-export default function DashboardScreen(props: NativeStackScreenProps<any>) {
-  const route = useRoute<any>();
+export default function DashboardScreen() {
+  // const route = useRoute<any>();
 
-  const {mqttClient} = route;
+  // const {mqttClient} = route;
 
-  // const [mqttClient, setMqttClient] = useState<IMqttClient>();
-  // const [connected, setConnected] = useState(true);
+  const navigation = useNavigation();
+
+  const [mqttClient, setMqttClient] = useState<IMqttClient>();
+  const [connected, setConnected] = useState(true);
   const [lamps, dispatchLamps] = useReducer(lampReducer, {
-    lamp1: {values: {on: 1, warmth: 'white', dim: 100}, isPublishing: false},
+    lamp1: {values: {on: 1, warmth: 'warm', dim: 100}, isPublishing: false},
+    lamp2: {values: {on: 1, warmth: 'warm', dim: 100}, isPublishing: false},
   });
 
   useEffect(() => {
-    mqttClient?.subscribe('lamp1/status', 0);
+    MQTT.createClient({
+      uri: 'mqtt://192.168.1.133:1883',
+      clientId: 'light-controller-app',
+    }).then((client: IMqttClient) => {
+      client.on('closed', () => {
+        setConnected(false);
+      });
 
-    // MQTT.createClient({
-    //   uri: 'mqtt://192.168.183.189:1883',
-    //   clientId: 'light-controller-app',
-    // }).then((client: IMqttClient) =>
+      client.on('error', () => {
+        setConnected(false);
+      });
 
-    mqttClient?.on('closed', () => {
-      props.navigation.navigate('Connecting');
-      // setConnected(false);
+      client.on('connect', function () {
+        setConnected(true);
+        client.subscribe('lamp1/status', 0);
+        client.subscribe('lamp2/status', 0);
+        console.log('connected!');
+      });
+
+      client.on(
+        'message',
+        (msg: {data: string; qos: QoS; retain: boolean; topic: string}) => {
+          if (msg.topic === 'lamp1/status') {
+            dispatchLamps({lampId: 'lamp1', values: JSON.parse(msg.data)});
+          } else if (msg.topic === 'lamp2/status') {
+            dispatchLamps({lampId: 'lamp2', values: JSON.parse(msg.data)});
+          }
+        },
+      );
+      client.connect();
+      setMqttClient(client);
     });
-
-    mqttClient?.on('error', () => {
-      props.navigation.navigate('Connecting');
-      // setConnected(false);
-    });
-
-    // mqttClient.on('connect', function () {
-    //   setConnected(true);
-    //   client.subscribe('lamp1/status', 0);
-    //   console.log('connected!');
-    // });
-
-    mqttClient?.on(
-      'message',
-      (msg: {data: string; qos: QoS; retain: boolean; topic: string}) => {
-        if (msg.topic === 'lamp1/status') {
-          dispatchLamps({lampId: 'lamp1', values: JSON.parse(msg.data)});
-        }
-      },
-    );
-    // client.connect();
-    // setMqttClient(client);
-    // });
-  }, [mqttClient, props.navigation]);
+  }, []);
 
   const publish = useCallback(
     (topic: string, payload: string, qos: QoS, retain: boolean) => {
@@ -102,14 +107,19 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
     [mqttClient],
   );
 
-  // if (!connected || !mqttClient) {
-  //   return (
-  //     <View style={styles.centered}>
-  //       <ActivityIndicator size="large" color="#fff" />
-  //       <Text style={styles.connectingText}>Connecting...</Text>
-  //     </View>
-  //   );
-  // }
+  useEffect(() => {
+    if (!connected || !mqttClient) navigation.setOptions({title: ''});
+    else navigation.setOptions({title: 'Dashboard'});
+  }, [connected, mqttClient, navigation]);
+
+  if (!connected || !mqttClient) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.connectingText}>Connecting...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -134,7 +144,7 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
             warmth={lamps.lamp2?.values.warmth}
             dim={lamps.lamp2?.values.dim}
           />
-          <LampController
+          {/* <LampController
             publish={publish}
             title="Hall"
             lampId="lamp2"
@@ -142,7 +152,7 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
             on={lamps.lamp2?.values.on}
             warmth={lamps.lamp2?.values.warmth}
             dim={lamps.lamp2?.values.dim}
-          />
+          /> */}
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -151,7 +161,9 @@ export default function DashboardScreen(props: NativeStackScreenProps<any>) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Appearance.getColorScheme() === 'dark' ? '#222' : '#eee',
+    // backgroundColor: Appearance.getColorScheme() === 'dark' ? '#222' : '#eee',
+    backgroundColor: '#eee',
+    height: '100%',
   },
   content: {
     marginTop: Platform.OS === 'android' ? -50 : -100,
@@ -162,10 +174,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     height: '100%',
     elevation: 3,
+    zIndex: 2,
   },
   centered: {
     height: '100%',
     width: '100%',
+    paddingBottom: 100,
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',

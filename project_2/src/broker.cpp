@@ -42,6 +42,9 @@ int mqtt::Broker::handleSubscribe(const mqtt::Header& header,
                                   const std::vector<char>& remainingBytes,
                                   Socket* socket) {
 
+  if (!socket)
+    return -1;
+
   mqtt::SubMsg subMsg(header);
 
   if (!subMsg.deserialize(remainingBytes)) {
@@ -147,7 +150,8 @@ int mqtt::Broker::handlePublish(const mqtt::Header& header,
   }
 
   for (const auto& sub : topicSubs) {
-    sub->send(fullMsg);
+    if (sub)
+      sub->send(fullMsg);
   }
 
   return 1;
@@ -157,7 +161,10 @@ int mqtt::Broker::handleDisconnect(const mqtt::Header& header, Socket* socket) {
 
   std::cout << header << "\n";
 
-  socket->close();
+  removeSubs(socket);
+
+  if (socket)
+    socket->close();
 
   return 1;
 }
@@ -181,8 +188,9 @@ int mqtt::Broker::handleClient(Socket* socket) {
   while (true) {
     std::vector<char> bytes = socket->receive(2);
 
-    if (bytes.empty())
+    if (bytes.empty()) {
       return 0;
+    }
 
     mqtt::Header header;
     if (!header.deserialize(bytes)) {
@@ -235,8 +243,9 @@ int mqtt::Broker::start() {
     Socket* socket = new Socket(port);
 
     if (!socket->connect()) {
-      std::cout << "failed to connect\n";
-      return 0;
+      std::cout << "failed to connect to incoming connection\n";
+      delete socket;
+      continue;
     }
 
     std::thread clientThread(&Broker::handleClient, this, socket);

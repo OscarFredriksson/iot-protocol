@@ -7,7 +7,9 @@
 
 std::string getTopicLampId(const std::string& topic) {
   if (topic == "lamp1")
-    return "65536";
+    return "65538";
+  else if (topic == "lamp2")
+    return "65539";
   else
     throw "Unkown topic";
 }
@@ -27,15 +29,18 @@ int main() {
   c->set_clean_session(true);
 
   std::uint16_t pid_sub1;
+  std::uint16_t pid_sub2;
 
   using packet_id_t =
       typename std::remove_reference_t<decltype(*c)>::packet_id_t;
 
   c->set_connack_handler(
-      [&c, &pid_sub1](bool sp, mqtt::connect_return_code connack_return_code) {
+      [&c, &pid_sub1,
+       &pid_sub2](bool sp, mqtt::connect_return_code connack_return_code) {
         std::cout << "Connect!\n";
 
         pid_sub1 = c->subscribe("lamp1", MQTT_NS::qos::at_most_once);
+        pid_sub2 = c->subscribe("lamp2", MQTT_NS::qos::at_most_once);
 
         return true;
       });

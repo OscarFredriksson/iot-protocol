@@ -60,9 +60,13 @@ export default function LampController(props: LampControllerProps) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [stats, dispatchStats] = useReducer(statsReducer, [
-    {rtt: 50},
-    {rtt: 70},
-    {rtt: 60},
+    // {rtt: 50},
+    // {rtt: 70},
+    // {rtt: 60},
+    // {rtt: 63},
+    // {rtt: 57},
+    // {rtt: 45},
+    // {rtt: 65},
   ]);
 
   const stopRttTimer = useCallback(() => {
@@ -72,7 +76,7 @@ export default function LampController(props: LampControllerProps) {
 
     dispatchStats({value: {rtt: rttValue}});
 
-    console.log('Dim RTT:', rttValue, 'ms');
+    // console.log('Dim RTT:', rttValue, 'ms');
   }, [rttTimer]);
 
   useEffect(() => {
@@ -236,7 +240,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginRight: 20,
-    color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
+    // color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#222',
+    color: '#222',
     textAlign: 'left',
     fontSize: 25,
     fontWeight: 'bold',

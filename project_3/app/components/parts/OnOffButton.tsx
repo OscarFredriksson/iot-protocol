@@ -29,7 +29,7 @@ export default function OnOffButton(props: OnOffButtonProps) {
           <IonIcon
             name="power"
             size={50}
-            color={props.isOn ? Colors.primary : Colors.inactive}
+            color={props.isOn ? Colors.primary : 'white'}
           />
         </TouchableOpacity>
       )}

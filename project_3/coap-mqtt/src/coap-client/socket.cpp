@@ -23,7 +23,7 @@ inline unsigned int Socket::My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
     key[i] = PSK_STR[i];
   }
 
-  return 16;
+  return PSK_STR.length();
 }
 
 int Socket::connect() {
@@ -66,22 +66,18 @@ int Socket::connect() {
     return -1;
   }
 
-  int connectReturn = wolfSSL_connect(ssl);
-
-  std::cout << "Connect Return: " << connectReturn << "\n";
-
-  if (connectReturn != SSL_SUCCESS) {
+  if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
     int err1 = wolfSSL_get_error(ssl, 0);
     printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
     printf("SSL_connect failed\n");
     return 0;
   }
 
-  /* associate the file descriptor with the session */
-  if (wolfSSL_set_fd(ssl, sockfd) != WOLFSSL_SUCCESS) {
-    std::cerr << "Failed to set file descriptor for wolfSSL.\n";
-    return -1;
-  }
+  // /* associate the file descriptor with the session */
+  // if (wolfSSL_set_fd(ssl, sockfd) != WOLFSSL_SUCCESS) {
+  //   std::cerr << "Failed to set file descriptor for wolfSSL.\n";
+  //   return -1;
+  // }
 
   std::cout << "Connected!\n";
   return 1;
