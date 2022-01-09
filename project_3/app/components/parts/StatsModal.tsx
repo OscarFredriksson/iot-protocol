@@ -73,7 +73,11 @@ export default function StatsModal(props: StatsModalProps) {
                           },
                         ],
                       }}
-                      width={Dimensions.get('window').width * 0.8}
+                      width={
+                        Dimensions.get('window').width * 0.8 < 300
+                          ? Dimensions.get('window').width * 0.8
+                          : 300
+                      }
                       height={200}
                       yAxisSuffix="ms"
                       chartConfig={chartConfig}
@@ -181,6 +185,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '95%',
+    maxWidth: 380,
     justifyContent: 'flex-start',
     alignSelf: 'center',
     alignItems: 'center',

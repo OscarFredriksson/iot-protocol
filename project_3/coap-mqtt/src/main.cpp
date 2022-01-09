@@ -81,20 +81,6 @@ int main() {
 
     if (response.getType() == CoapType::Acknowledgement &&
         response.getCode() == CoapCode::Changed) {
-      // CoapMessage request(CoapCode::GET, getRandomMessageId());
-
-      // std::string coapUriPath =
-      //     "15001/" + getTopicLampId(std::string(topic_name));
-
-      // request.setOptionUriPath(coapUriPath);
-
-      // std::cout << request << "\n";
-
-      // client.send(request);
-
-      // CoapMessage response = client.getResponse();
-
-      // std::cout << response << "\n";
 
       c->publish(std::string(topic_name) + "/status", std::string(contents),
                  MQTT_NS::retain::yes);

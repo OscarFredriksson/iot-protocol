@@ -61,8 +61,8 @@ export default function DashboardScreen() {
   const [mqttClient, setMqttClient] = useState<IMqttClient>();
   const [connected, setConnected] = useState(true);
   const [lamps, dispatchLamps] = useReducer(lampReducer, {
-    lamp1: {values: {on: 1, warmth: 'warm', dim: 100}, isPublishing: false},
-    lamp2: {values: {on: 1, warmth: 'warm', dim: 100}, isPublishing: false},
+    lamp1: {values: {on: 1, warmth: 'warm', dim: 140}, isPublishing: false},
+    lamp2: {values: {on: 1, warmth: 'white', dim: 40}, isPublishing: false},
   });
 
   useEffect(() => {

@@ -99,7 +99,6 @@ std::vector<char> Socket::receive() {
   // Convert the char array to a vector that is as long as the number of read
   // bytes
   return std::vector<char>(msg, msg + byteCount);
-  ;
 }
 
 void Socket::send(const std::vector<char>& msg) {
