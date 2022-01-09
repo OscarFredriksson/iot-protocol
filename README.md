@@ -4,6 +4,6 @@
 
 #### [Project 1](project_1/): COAP Client from scratch
 
-#### [Project_2](project_2/): MQTT Broker from scratch
+#### [Project 2](project_2/): MQTT Broker from scratch
 
-#### [Project_3](project_3/): Combine project 1 and 2 into a complete IoT system
+#### [Project 3](project_3/): Combine project 1 and 2 into a complete IoT system
